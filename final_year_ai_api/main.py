@@ -21,6 +21,11 @@ app.add_middleware(
     allow_headers=["*"],          # allow all headers
 )
 
+@app.get("/")
+def home():
+    return {"message": "Server running"}
+
+
 # Include recognize route
 app.include_router(recognize.router)
 
