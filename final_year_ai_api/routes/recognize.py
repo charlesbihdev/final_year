@@ -68,7 +68,7 @@ async def recognize(photo: UploadFile = File(...)):
         else:
             return {
                 "matched": True,
-                "similarity": float(best_similarity) * 100,
+                "similarity": float(best_similarity),
                 "student": None,
                 "message": "Student record not found for matched face ID"
             }

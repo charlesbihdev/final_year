@@ -5,7 +5,6 @@ from routes import recognize
 from routes import train
 from routes import students
 
-
 app = FastAPI()
 
 # Allow React frontend to connect
@@ -24,7 +23,6 @@ app.add_middleware(
 @app.get("/")
 def home():
     return {"message": "Server running"}
-
 
 # Include recognize route
 app.include_router(recognize.router)

@@ -3,8 +3,11 @@ from typing import List
 import numpy as np
 from core.face_utils import get_face_embedding
 import sqlite3
+import logging
 
 router = APIRouter()
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
 
 def get_db_connection():
     conn = sqlite3.connect("face_data.db")
@@ -16,6 +19,8 @@ async def train_face(
     student_id: int = Form(...),
     photos: List[UploadFile] = File(...)
 ):
+    # logger.debug(f"Training for student ID: {student_id} with {len(photos)} photos")
+    
     embeddings = []
 
     for photo in photos:
@@ -32,8 +37,8 @@ async def train_face(
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO faces (id, embedding) VALUES (?, ?)", (student_id, blob))
+    cursor.execute("INSERT INTO faces (student_id, embedding) VALUES (?, ?)", (student_id, blob))
     conn.commit()
     conn.close()
 
-    return {"message": f"Trained {len(embeddings)} image(s) for student {student_id}"}
+    return {"message": f"Successfully Trained {len(embeddings)} image(s) for the student {student_id}"}

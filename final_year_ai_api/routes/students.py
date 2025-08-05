@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Form
 import sqlite3
+from pydantic import BaseModel
+
+
 
 router = APIRouter()
 
@@ -7,6 +10,7 @@ def get_db_connection():
     conn = sqlite3.connect("face_data.db")
     conn.row_factory = sqlite3.Row
     return conn
+
 
 @router.post("/students")
 def create_student(
