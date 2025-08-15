@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
@@ -7,15 +9,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TextField } from "@/components/ui/form-field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Lock } from 'lucide-react'
+import { Lock } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  
-  const { login } = useAuth()
+
+  const { login, user } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,13 +26,21 @@ export default function LoginPage() {
     setError("")
 
     const success = await login(email, password)
-    
+
     if (success) {
-      router.push("/admin/courses")
+      // After successful login, check user role for redirection
+      if (user?.role === "admin") {
+        router.push("/admin/courses")
+      } else if (user?.role === "invigilator") {
+        router.push("/invigilator/dashboard")
+      } else {
+        // Default redirection for other roles or if role is not explicitly handled
+        router.push("/")
+      }
     } else {
       setError("Invalid email or password")
     }
-    
+
     setIsLoading(false)
   }
 
@@ -42,9 +52,7 @@ export default function LoginPage() {
             <Lock className="w-6 h-6 text-blue-600" />
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>
-          <CardDescription>
-            Sign in to access the attendance management system
-          </CardDescription>
+          <CardDescription>Sign in to access the attendance management system</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,7 +64,7 @@ export default function LoginPage() {
               placeholder="admin@example.com"
               required
             />
-            
+
             <TextField
               label="Password"
               type="password"
@@ -68,9 +76,7 @@ export default function LoginPage() {
 
             {error && (
               <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">
-                  {error}
-                </AlertDescription>
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
               </Alert>
             )}
 
