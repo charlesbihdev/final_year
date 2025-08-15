@@ -1,15 +1,15 @@
 "use client";
-
-import type React from "react";
-
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function AttendancePage() {
+const page = () => {
   const router = useRouter();
+
   useEffect(() => {
-    router.push("/login");
+    router.push("/admin/courses");
   }, []);
 
-  return <div></div>;
-}
+  return <div>loading....</div>;
+};
+
+export default page;

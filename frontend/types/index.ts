@@ -39,6 +39,7 @@ export interface ExamSession {
   end_time: string
   is_active: boolean
   course?: Course
+  invigilators?: Invigilator[] // Added this line
 }
 
 export interface AttendanceRecord {
