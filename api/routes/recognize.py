@@ -6,13 +6,14 @@ import torch
 from sklearn.metrics.pairwise import cosine_similarity
 import io
 
-from core.db import get_db_connection   # 🔥 use Turso DB
+from core.db import get_db_connection  # 🔥 use Turso DB
 
 router = APIRouter()
 
 # Load models
 mtcnn = MTCNN(image_size=160, margin=0)
 resnet = InceptionResnetV1(pretrained='vggface2').eval()
+
 
 # Convert image to embedding
 def get_face_embedding(image_bytes):
@@ -23,6 +24,7 @@ def get_face_embedding(image_bytes):
     with torch.no_grad():
         embedding = resnet(face.unsqueeze(0)).numpy()[0]
     return embedding
+
 
 @router.post("/recognize")
 async def recognize(photo: UploadFile = File(...)):
