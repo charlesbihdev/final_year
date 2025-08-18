@@ -1,23 +1,18 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File
 import numpy as np
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from PIL import Image
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
-import sqlite3
 import io
+
+from core.db import get_db_connection   # 🔥 use Turso DB
 
 router = APIRouter()
 
 # Load models
 mtcnn = MTCNN(image_size=160, margin=0)
 resnet = InceptionResnetV1(pretrained='vggface2').eval()
-
-# Connect to SQLite DB
-def get_db_connection():
-    conn = sqlite3.connect("face_data.db")
-    conn.row_factory = sqlite3.Row
-    return conn
 
 # Convert image to embedding
 def get_face_embedding(image_bytes):
@@ -38,26 +33,27 @@ async def recognize(photo: UploadFile = File(...)):
         return {"message": "No face detected in image"}
 
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, embedding FROM faces")
-    rows = cursor.fetchall()
+
+    # Fetch stored embeddings
+    rows = conn.execute("SELECT id, embedding FROM faces").fetchall()
 
     best_match_id = None
     best_similarity = 0
     threshold = 0.6
 
     for row in rows:
+        # Embeddings are stored as BLOBs
         db_embedding = np.frombuffer(row["embedding"], dtype=np.float32)
-
         similarity = cosine_similarity([new_embedding], [db_embedding])[0][0]
+
         if similarity > best_similarity and similarity >= threshold:
             best_similarity = similarity
             best_match_id = row["id"]
 
     if best_match_id:
-        cursor.execute("SELECT * FROM students WHERE id = ?", (best_match_id,))
-        student = cursor.fetchone()
-        conn.close()
+        student = conn.execute(
+            "SELECT * FROM students WHERE id = ?", (best_match_id,)
+        ).fetchone()
 
         if student:
             return {
@@ -73,7 +69,6 @@ async def recognize(photo: UploadFile = File(...)):
                 "message": "Student record not found for matched face ID"
             }
     else:
-        conn.close()
         return {
             "matched": False,
             "message": "No matching face found",

@@ -1,16 +1,7 @@
 from fastapi import APIRouter, Form
-import sqlite3
-from pydantic import BaseModel
-
-
+from core.db import get_db_connection   # ✅ Use Turso client
 
 router = APIRouter()
-
-def get_db_connection():
-    conn = sqlite3.connect("face_data.db")
-    conn.row_factory = sqlite3.Row
-    return conn
-
 
 @router.post("/students")
 def create_student(
@@ -19,25 +10,28 @@ def create_student(
     class_: str = Form(...)
 ):
     conn = get_db_connection()
-    cursor = conn.cursor()
 
-    cursor.execute("""
+    conn.execute(
+        """
         INSERT INTO students (student_name, index_number, class)
         VALUES (?, ?, ?)
-    """, (student_name, index_number, class_))
+        """,
+        (student_name, index_number, class_)
+    )
 
-    conn.commit()
-    conn.close()
-
-    return { "message": "Student added successfully", "name": student_name, "index_number": index_number }
+    # libsql-client commits automatically
+    return {
+        "message": "Student added successfully",
+        "name": student_name,
+        "index_number": index_number
+    }
 
 @router.get("/students")
 def list_students():
     conn = get_db_connection()
-    cursor = conn.cursor()
+    rows = conn.execute(
+        "SELECT id, student_name, class, index_number FROM students"
+    ).fetchall()
 
-    cursor.execute("SELECT id, student_name, class, index_number FROM students")
-    rows = cursor.fetchall()
-    conn.close()
-
+    # Rows are dict-like in libsql-client
     return [dict(row) for row in rows]
