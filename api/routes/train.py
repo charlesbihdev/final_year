@@ -1,44 +1,36 @@
-from fastapi import APIRouter, UploadFile, File, Form
-from typing import List
-import numpy as np
-from core.face_utils import get_face_embedding
-import sqlite3
-import logging
+from fastapi import APIRouter, Form
+from core.db import get_db_connection   # ✅ Use Turso client
 
 router = APIRouter()
-# logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger(__name__)
 
-def get_db_connection():
-    conn = sqlite3.connect("face_data.db")
-    conn.row_factory = sqlite3.Row
-    return conn
-
-@router.post("/train")
-async def train_face(
-    student_id: int = Form(...),
-    photos: List[UploadFile] = File(...)
+@router.post("/students")
+def create_student(
+    student_name: str = Form(...),
+    index_number: str = Form(...),
+    class_: str = Form(...)
 ):
-    # logger.debug(f"Training for student ID: {student_id} with {len(photos)} photos")
-    
-    embeddings = []
-
-    for photo in photos:
-        image_bytes = await photo.read()
-        embedding = get_face_embedding(image_bytes)
-        if embedding is not None:
-            embeddings.append(embedding)
-
-    if not embeddings:
-        return {"message": "No valid faces detected"}
-
-    avg_embedding = np.mean(embeddings, axis=0).astype(np.float32)
-    blob = avg_embedding.tobytes()
-
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO faces (student_id, embedding) VALUES (?, ?)", (student_id, blob))
-    conn.commit()
-    conn.close()
 
-    return {"message": f"Successfully Trained {len(embeddings)} image(s) for the student {student_id}"}
+    conn.execute(
+        """
+        INSERT INTO students (student_name, index_number, class)
+        VALUES (?, ?, ?)
+        """,
+        (student_name, index_number, class_)
+    )
+
+    # libsql-client auto-commits, no need for conn.commit()
+    return {
+        "message": "Student added successfully",
+        "name": student_name,
+        "index_number": index_number
+    }
+
+@router.get("/students")
+def list_students():
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT id, student_name, class, index_number FROM students"
+    ).fetchall()
+
+    return [dict(row) for row in rows]
