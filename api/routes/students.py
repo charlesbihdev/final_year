@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Form
 import sqlite3
 from pydantic import BaseModel
-
-
+from libsql_client import create_client
 
 router = APIRouter()
+
+# Turso DB URL 
+db_url = "libsql://facedata-georgegyan.aws-ap-northeast-1.turso.io"
+client = create_client(db_url)
 
 def get_db_connection():
     conn = sqlite3.connect("face_data.db")

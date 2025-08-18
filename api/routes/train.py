@@ -2,17 +2,16 @@ from fastapi import APIRouter, UploadFile, File, Form
 from typing import List
 import numpy as np
 from core.face_utils import get_face_embedding
-import sqlite3
+from libsql_client import create_client
 import logging
 
 router = APIRouter()
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
 
-def get_db_connection():
-    conn = sqlite3.connect("face_data.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+# Turso DB URL (add ?authToken=YOUR_TOKEN if needed)
+db_url = "https://facedata-georgegyan.aws-ap-northeast-1.turso.io?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NTU1MjM0NDgsImlkIjoiYTg2NDIyMTQtOWI3OS00NDU5LTk4MjAtNzZiOTc3ZmYwMDEwIiwicmlkIjoiNDhkNzJiYjktOGI1MC00OTJhLWJlZTQtNmZmNTAxNmI2NTJlIn0.sGX1F9kdfwHQYaUXtJf4GpTUaRsSXI54FLygMdX5Pv0YIrTd53PQfWqi80wYApcrNz3derH_gLrBmj5i_4wsBQ"
+client = create_client(db_url)
 
 @router.post("/train")
 async def train_face(
@@ -35,10 +34,9 @@ async def train_face(
     avg_embedding = np.mean(embeddings, axis=0).astype(np.float32)
     blob = avg_embedding.tobytes()
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO faces (student_id, embedding) VALUES (?, ?)", (student_id, blob))
-    conn.commit()
-    conn.close()
+    await client.execute(
+        "INSERT INTO faces (student_id, embedding) VALUES (?, ?)",
+        [student_id, blob]
+    )
 
     return {"message": f"Successfully Trained {len(embeddings)} image(s) for the student {student_id}"}
