@@ -4,13 +4,14 @@ import numpy as np
 from core.face_utils import get_face_embedding
 from libsql_client import create_client
 import logging
+import os
 
 router = APIRouter()
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
 
-# Turso DB URL (add ?authToken=YOUR_TOKEN if needed)
-db_url = "https://facedata-georgegyan.aws-ap-northeast-1.turso.io?authToken=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NTU1MjM0NDgsImlkIjoiYTg2NDIyMTQtOWI3OS00NDU5LTk4MjAtNzZiOTc3ZmYwMDEwIiwicmlkIjoiNDhkNzJiYjktOGI1MC00OTJhLWJlZTQtNmZmNTAxNmI2NTJlIn0.sGX1F9kdfwHQYaUXtJf4GpTUaRsSXI54FLygMdX5Pv0YIrTd53PQfWqi80wYApcrNz3derH_gLrBmj5i_4wsBQ"
+# Turso DB URL 
+db_url = os.getenv("TURSO_DB_URL")
 client = create_client(db_url)
 
 @router.post("/train")
