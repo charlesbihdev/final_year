@@ -108,19 +108,19 @@ function AttendancePageContent() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-              <Badge variant={session.is_active ? "default" : "secondary"}>
+            <Badge variant={session.is_active ? "default" : "secondary"}>
               {session.is_active ? "Active" : "Inactive"}
-              </Badge>
-                  {/* <Button
+            </Badge>
+            <Button
               variant={session.is_active ? "destructive" : "default"}
               onClick={handleToggleSession}
-                  disabled={isLoading}
-                  className="gap-2"
+              disabled={isLoading}
+              className="gap-2"
             >
               {session.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               {session.is_active ? "Stop Session" : "Start Session"}
-                </Button> */}
-              </div>
+            </Button>
+          </div>
             </div>
 
         {/* Status Alert */}

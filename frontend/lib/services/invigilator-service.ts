@@ -4,20 +4,15 @@ import type { ExamSession } from "@/types";
 export const invigilatorService = {
   async getAssignedSessions(userId: number) {
     try {
-      const response = await fetch(`/api/invigilators/${userId}/sessions`);
-      const data = await response.json();
+      const response = await api.get<ExamSession[]>(`/invigilators/${userId}/sessions`);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch sessions");
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch sessions");
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch sessions");
       }
 
       return {
         success: true,
-        data: data.data,
+        data: response.data,
         error: undefined,
       };
     } catch (error) {
@@ -33,20 +28,15 @@ export const invigilatorService = {
 
   async getSessionAttendance(sessionId: number) {
     try {
-      const response = await fetch(`/api/sessions/${sessionId}/attendance`);
-      const data = await response.json();
+      const response = await api.get<{ present: number; total: number }>(`/sessions/${sessionId}/attendance`);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch attendance");
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch attendance");
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch attendance");
       }
 
       return {
         success: true,
-        data: data.data,
+        data: response.data,
         error: undefined,
       };
     } catch (error) {

@@ -12,6 +12,7 @@ export async function GET(
 
     // First get the invigilator record for this user
     const invigilator = await invigilatorsDb.getInvigilatorByUserId(userId);
+    
     if (!invigilator) {
       return NextResponse.json(
         { success: false, error: "Invigilator not found" },
@@ -29,7 +30,7 @@ export async function GET(
       data: sessions,
     });
   } catch (error) {
-    console.error("Failed to fetch sessions:", error);
+    console.error("API: Failed to fetch sessions:", error);
     return NextResponse.json(
       {
         success: false,

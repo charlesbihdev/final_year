@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Users, BookOpen, Calendar, FileText, UserCheck, Settings, Menu, X, LogOut, UserPlus } from 'lucide-react'
 
@@ -21,9 +23,29 @@ const navigation = [
 ]
 
 export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  useEffect(() => {
+    // If auth is still loading, wait
+    if (isLoading) {
+      return;
+    }
+
+    // If no user after loading, redirect to login
+    if (!user?.id) {
+      router.push("/login");
+      return;
+    }
+
+    // If user is not admin, redirect to home
+    if (user.role !== "admin") {
+      router.push("/");
+      return;
+    }
+  }, [user?.id, user?.role, isLoading, router]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -34,6 +56,20 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
     } finally {
       setIsLoggingOut(false)
     }
+  }
+
+  // Show loading while auth is being checked
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">
+            {isLoading ? "Checking authentication..." : "Loading admin panel..."}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -51,7 +87,7 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
             </div>
             <nav className="p-4 space-y-2">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
@@ -63,7 +99,7 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
                 >
                   <item.icon className="w-5 h-5" />
                   {item.name}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
@@ -78,7 +114,7 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
         </div>
         <nav className="p-4 space-y-2">
           {navigation.map((item) => (
-            <a
+            <Link
               key={item.name}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
@@ -89,7 +125,7 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
             >
               <item.icon className="w-5 h-5" />
               {item.name}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="absolute bottom-4 left-4 right-4">

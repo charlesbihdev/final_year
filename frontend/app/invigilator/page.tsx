@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 
 import { invigilatorService } from "@/lib/services/invigilator-service";
 import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
 
 export default function InvigilatorDashboardPage() {
   const { user, logout } = useAuth();
@@ -33,12 +34,14 @@ export default function InvigilatorDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
+    // If no user, redirect to login
     if (!user?.id) {
+      router.push("/login");
       return;
     }
 
     fetchAssignedSessions();
-  }, [user?.id]);
+  }, [user?.id, router]);
 
   const fetchAssignedSessions = async () => {
     if (!user?.id) {
@@ -119,9 +122,11 @@ export default function InvigilatorDashboardPage() {
       key: "is_active",
       label: "Status",
       render: (session: ExamSession) => (
-        <Badge variant={session.is_active ? "default" : "secondary"}>
-          {session.is_active ? "Active" : "Inactive"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={session.is_active ? "default" : "secondary"}>
+            {session.is_active ? "Active" : "Inactive"}
+          </Badge>
+        </div>
       ),
     },
     {
@@ -148,25 +153,60 @@ export default function InvigilatorDashboardPage() {
   ];
 
   const actions = (session: ExamSession) => (
-    <Link href={`/invigilator/sessions/${session.id}/attendance`}>
+    <div className="flex gap-2">
       <Button
-        variant="outline"
+        variant={session.is_active ? "destructive" : "default"}
         size="sm"
         className="gap-2"
-        disabled={!session.is_active}
+        onClick={async () => {
+          try {
+            const response = await api.put(`/sessions/${session.id}/toggle`, {});
+            if (response.success) {
+              // Refresh the sessions list
+              fetchAssignedSessions();
+            } else {
+              alert("Failed to toggle session status");
+            }
+          } catch (error) {
+            console.error("Error toggling session:", error);
+            alert("Failed to toggle session status");
+          }
+        }}
       >
-        <UserCheck className="w-4 h-4" />
-        Mark Attendance
+        {session.is_active ? "Deactivate" : "Activate"}
       </Button>
-    </Link>
+      <Link href={`/invigilator/sessions/${session.id}/attendance`}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <UserCheck className="w-4 h-4" />
+          Mark Attendance
+        </Button>
+      </Link>
+    </div>
   );
 
+  // Show loading while data is being fetched
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading while auth is being checked
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
     );
