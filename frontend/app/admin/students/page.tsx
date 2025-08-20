@@ -5,6 +5,7 @@ import { AdminLayout } from "@/components/layout/admin-layout"
 import { StudentList } from "@/components/students/student-list"
 import { StudentForm } from "@/components/students/student-form"
 import { FaceCapture } from "@/components/students/face-capture"
+import { FingerprintEnrollment } from "@/components/students/fingerprint-enrollment"
 import { BulkStudentImport } from "@/components/bulk-import/bulk-student-import"
 import { TrainModel } from "@/components/students/train-model" // New import for TrainModel
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ export default function StudentsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [showFaceCapture, setShowFaceCapture] = useState(false)
+  const [showFingerprintEnrollment, setShowFingerprintEnrollment] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [activeTab, setActiveTab] = useState("list")
@@ -59,6 +61,11 @@ export default function StudentsPage() {
     setShowFaceCapture(true)
   }
 
+  const handleEnrollFingerprint = (student: Student) => {
+    setSelectedStudent(student)
+    setShowFingerprintEnrollment(true)
+  }
+
   const handleFormSuccess = () => {
     setShowForm(false)
     setEditingStudent(null)
@@ -67,6 +74,12 @@ export default function StudentsPage() {
 
   const handleFaceCaptureSuccess = () => {
     setShowFaceCapture(false)
+    setSelectedStudent(null)
+    fetchStudents()
+  }
+
+  const handleFingerprintEnrollmentSuccess = () => {
+    setShowFingerprintEnrollment(false)
     setSelectedStudent(null)
     fetchStudents()
   }
@@ -118,6 +131,7 @@ export default function StudentsPage() {
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
               onCaptureFace={handleCaptureFace}
+              onEnrollFingerprint={handleEnrollFingerprint}
             />
           </TabsContent>
 
@@ -142,6 +156,13 @@ export default function StudentsPage() {
           onClose={() => setShowFaceCapture(false)}
           student={selectedStudent}
           onSuccess={handleFaceCaptureSuccess}
+        />
+
+        <FingerprintEnrollment
+          isOpen={showFingerprintEnrollment}
+          onClose={() => setShowFingerprintEnrollment(false)}
+          student={selectedStudent}
+          onSuccess={handleFingerprintEnrollmentSuccess}
         />
       </div>
     </AdminLayout>

@@ -27,7 +27,7 @@ export function FaceRecognition({
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreview(e.target?.result as string);
@@ -74,23 +74,25 @@ export function FaceRecognition({
             onChange={handleFileUpload}
             className="hidden"
           />
-          
+
           {!preview ? (
-            <div 
+            <div
               className="w-full max-w-md h-64 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
               <div className="text-center">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">Click to upload a photo</p>
-                <p className="text-sm text-gray-400">Support for JPG, PNG files</p>
+                <p className="text-sm text-gray-400">
+                  Support for JPG, PNG files
+                </p>
               </div>
             </div>
           ) : (
             <div className="w-full max-w-md space-y-4">
-              <img 
-                src={preview} 
-                alt="Preview" 
+              <img
+                src={preview}
+                alt="Preview"
                 className="w-full h-64 object-cover rounded-lg border"
               />
               <div className="flex gap-2">
@@ -101,10 +103,7 @@ export function FaceRecognition({
                 >
                   {isProcessing ? "Processing..." : "Recognize Face"}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={resetForm}
-                >
+                <Button variant="outline" onClick={resetForm}>
                   Reset
                 </Button>
               </div>
@@ -113,7 +112,13 @@ export function FaceRecognition({
         </div>
 
         {recognitionResult && (
-          <Alert className={recognitionResult.matched ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+          <Alert
+            className={
+              recognitionResult.matched
+                ? "border-green-200 bg-green-50"
+                : "border-red-200 bg-red-50"
+            }
+          >
             {recognitionResult.matched ? (
               <CheckCircle className="h-4 w-4 text-green-600" />
             ) : (
@@ -123,10 +128,12 @@ export function FaceRecognition({
               {recognitionResult.matched ? (
                 <div>
                   <div className="font-semibold text-green-800">
-                    Student Recognized: {recognitionResult.student?.student_name}
+                    Student Recognized:{" "}
+                    {recognitionResult.student?.student_name}
                   </div>
                   <div className="text-sm text-green-700">
-                    Confidence: {(recognitionResult.similarity * 100).toFixed(1)}%
+                    Confidence:{" "}
+                    {(recognitionResult.similarity * 100).toFixed(1)}%
                   </div>
                 </div>
               ) : (

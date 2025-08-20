@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS Students (
     index_number TEXT UNIQUE NOT NULL,
     department TEXT,
     level INTEGER NOT NULL CHECK(level IN (100, 200, 300, 400)),
-    division TEXT NOT NULL
+    division TEXT NOT NULL,
+    fingerprint_id INTEGER CHECK(fingerprint_id >= 1 AND fingerprint_id <= 127)
 );
 """)
 
@@ -126,6 +127,15 @@ CREATE TABLE IF NOT EXISTS FaceData (
 );
 """)
 
+# Create TemporaryFingerprint table for IoT devices
+db.execute("""
+CREATE TABLE IF NOT EXISTS TemporaryFingerprint (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fingerprint_id INTEGER NOT NULL CHECK(fingerprint_id >= 1 AND fingerprint_id <= 127),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+""")
+
 print("All tables created successfully!")
 
 def drop_all_tables():
@@ -134,6 +144,7 @@ def drop_all_tables():
     
     # Drop tables in reverse order of creation to handle foreign key dependencies
     tables_to_drop = [
+        "TemporaryFingerprint",
         "FaceData",
         "AttendanceRecords", 
         "SessionInvigilators",
