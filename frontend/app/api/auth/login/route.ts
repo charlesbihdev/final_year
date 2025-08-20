@@ -27,9 +27,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
+    // Generate JWT token with user info
     const token = await new SignJWT({
       userId: user.id,
+      name: user.name,
       email: user.email,
       role: user.role,
     })
@@ -37,8 +38,8 @@ export async function POST(request: NextRequest) {
       .setExpirationTime("24h")
       .sign(new TextEncoder().encode(JWT_SECRET));
 
-    // Create response with cookie
-    const response = NextResponse.json({
+    // Return token in response body for client-side storage
+    return NextResponse.json({
       success: true,
       data: {
         user: {
@@ -47,20 +48,9 @@ export async function POST(request: NextRequest) {
           email: user.email,
           role: user.role,
         },
+        token: token,
       },
     });
-
-    // Set httpOnly cookie
-    response.cookies.set({
-      name: "token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
-
-    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

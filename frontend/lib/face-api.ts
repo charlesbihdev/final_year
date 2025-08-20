@@ -5,7 +5,7 @@ class FastApiClient {
   private baseUrl: string = process.env.NEXT_PUBLIC_FAST_API_URL || "http://localhost:8000";
 
   constructor() {
-    console.log("FastAPI Client initialized with URL:", this.baseUrl);
+    // FastAPI Client initialized
   }
 
   async uploadFace<T>(

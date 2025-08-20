@@ -114,7 +114,7 @@ export async function setupDatabase() {
       )
     `);
 
-    console.log("All tables created successfully!");
+    // All tables created successfully
   } catch (error) {
     console.error("Error setting up database:", error);
     console.error(
