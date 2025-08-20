@@ -164,7 +164,6 @@ export default function InvigilatorDashboardPage() {
               alert("Failed to toggle session status");
             }
           } catch (error) {
-            console.error("Error toggling session:", error);
             alert("Failed to toggle session status");
           }
         }}
