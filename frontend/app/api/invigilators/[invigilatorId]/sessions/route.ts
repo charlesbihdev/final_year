@@ -9,14 +9,11 @@ export async function GET(
     // The ID passed in is actually the user ID
     const params = await context.params;
     const userId = parseInt(params.invigilatorId);
-    console.log("API: Fetching sessions for user ID:", userId);
 
     // First get the invigilator record for this user
     const invigilator = await invigilatorsDb.getInvigilatorByUserId(userId);
-    console.log("API: Found invigilator:", invigilator);
     
     if (!invigilator) {
-      console.log("API: Invigilator not found for user ID:", userId);
       return NextResponse.json(
         { success: false, error: "Invigilator not found" },
         { status: 404 }
@@ -27,7 +24,6 @@ export async function GET(
     const sessions = await examSessionsDb.getSessionsByInvigilator(
       invigilator.id
     );
-    console.log("API: Found sessions:", sessions);
 
     return NextResponse.json({
       success: true,

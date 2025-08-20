@@ -4,7 +4,7 @@ import type { ExamSession } from "@/types";
 export const invigilatorService = {
   async getAssignedSessions(userId: number) {
     try {
-      const response = await api.get(`/invigilators/${userId}/sessions`);
+      const response = await api.get<ExamSession[]>(`/invigilators/${userId}/sessions`);
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch sessions");
@@ -28,7 +28,7 @@ export const invigilatorService = {
 
   async getSessionAttendance(sessionId: number) {
     try {
-      const response = await api.get(`/sessions/${sessionId}/attendance`);
+      const response = await api.get<{ present: number; total: number }>(`/sessions/${sessionId}/attendance`);
 
       if (!response.success) {
         throw new Error(response.error || "Failed to fetch attendance");
