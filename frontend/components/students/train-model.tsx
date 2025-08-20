@@ -86,7 +86,7 @@ export function TrainModel({ onTrainingComplete }: TrainModelProps) {
   const filteredStudents = allStudents.filter(
     (student) =>
       student.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.student_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.index_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.department.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
@@ -134,7 +134,7 @@ export function TrainModel({ onTrainingComplete }: TrainModelProps) {
                     }}
                   >
                     <div className="font-medium">{student.user?.name}</div>
-                    <div className="text-sm text-gray-600">{student.student_id}</div>
+                    <div className="text-sm text-gray-600">{student.index_number}</div>
                     <div className="text-xs text-gray-500">{student.department} - Level {student.level}</div>
                   </div>
                 ))
@@ -147,7 +147,7 @@ export function TrainModel({ onTrainingComplete }: TrainModelProps) {
               <AlertDescription className="text-blue-800">
                 <div className="font-semibold">Selected: {selectedStudent.user?.name}</div>
                 <div className="text-sm">
-                  {selectedStudent.student_id} | {selectedStudent.department} | Level {selectedStudent.level}
+                  {selectedStudent.index_number} | {selectedStudent.department} | Level {selectedStudent.level}
                 </div>
               </AlertDescription>
             </Alert>

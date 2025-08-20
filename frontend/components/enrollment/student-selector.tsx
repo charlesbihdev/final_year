@@ -29,7 +29,7 @@ export function StudentSelector({ students, selectedStudentId, onStudentChange }
           <SelectContent>
             {students.map((student) => (
               <SelectItem key={student.id} value={student.id.toString()}>
-                {student.student_id} - {student.user?.name || 'Unknown'}
+                {student.index_number} - {student.name}
               </SelectItem>
             ))}
           </SelectContent>

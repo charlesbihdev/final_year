@@ -96,7 +96,7 @@ export default function StudentsPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3"> {/* Changed to 3 columns */}
+          <TabsList className="grid w-full grid-cols-2"> {/* Changed to 3 columns */}
             <TabsTrigger value="list" className="gap-2">
               <Users className="w-4 h-4" />
               Student List
@@ -105,10 +105,10 @@ export default function StudentsPage() {
               <Upload className="w-4 h-4" />
               Bulk Import
             </TabsTrigger>
-            <TabsTrigger value="train-model" className="gap-2"> {/* New Tab Trigger */}
+            {/* <TabsTrigger value="train-model" className="gap-2"> 
               <Camera className="w-4 h-4" />
               Train Model
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="list">
@@ -125,9 +125,9 @@ export default function StudentsPage() {
             <BulkStudentImport onImportComplete={handleImportComplete} />
           </TabsContent>
 
-          <TabsContent value="train-model"> {/* New Tab Content */}
+          {/* <TabsContent value="train-model"> 
             <TrainModel onTrainingComplete={handleTrainingComplete} />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
 
         <StudentForm

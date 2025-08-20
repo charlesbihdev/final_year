@@ -1,90 +1,107 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useEffect, createContext, useContext } from "react"
-import type { User } from "@/types"
+import type React from "react";
+import { useState, useEffect, createContext, useContext } from "react";
+import type { User } from "@/types";
+import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
 
 interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
-  isLoading: boolean
+  user: User | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Check for existing session
-    const token = localStorage.getItem("auth_token")
-    if (token) {
-      fetchUser(token)
-    } else {
-      setIsLoading(false)
-    }
-  }, [])
+    checkAuth();
+  }, []);
 
-  const fetchUser = async (token: string) => {
+  const checkAuth = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
+      const response = await fetch("/api/auth/me");
       if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
-      } else {
-        localStorage.removeItem("auth_token")
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.data);
+        }
       }
     } catch (error) {
-      console.error("Auth error:", error)
-      localStorage.removeItem("auth_token")
+      console.error("Auth check failed:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
-      if (response.ok) {
-        const { token, user: userData } = await response.json()
-        localStorage.setItem("auth_token", token)
-        setUser(userData)
-        return true
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.data.user);
+        return true;
       }
-      return false
+      return false;
     } catch (error) {
-      console.error("Login error:", error)
-      return false
+      console.error("Login error:", error);
+      return false;
     }
-  }
+  };
 
-  const logout = () => {
-    localStorage.removeItem("auth_token")
-    setUser(null)
-  }
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", { 
+        method: "POST",
+        credentials: "include" // Ensure cookies are included
+      });
+      
+      if (response.ok) {
+        setUser(null);
+        // Clear any client-side storage if used
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem("auth_token");
+          sessionStorage.removeItem("auth_token");
+        }
+        router.push("/login");
+      } else {
+        console.error("Logout failed:", await response.text());
+        // Still redirect even if API call fails
+        setUser(null);
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Force logout even if request fails
+      setUser(null);
+      router.push("/login");
+    }
+  };
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }

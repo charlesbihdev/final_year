@@ -17,17 +17,22 @@ interface StudentListProps {
 export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFace }: StudentListProps) {
   const columns = [
     {
-      key: 'student_id',
-      label: 'Student ID'
+      key: 'index_number',
+      label: 'Index Number'
     },
     {
-      key: 'user.name',
-      label: 'Name',
-      render: (student: Student) => student.user?.name || '-'
+      key: 'name',
+      label: 'Name'
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (student: Student) => student.email || '-'
     },
     {
       key: 'department',
-      label: 'Department'
+      label: 'Department',
+      render: (student: Student) => student.department || '-'
     },
     {
       key: 'level',

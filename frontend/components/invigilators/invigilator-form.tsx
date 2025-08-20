@@ -27,29 +27,31 @@ export function InvigilatorForm({ isOpen, onClose, invigilator, onSuccess }: Inv
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    staff_id: '',
+    password: '',
     department: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (invigilator) {
-      setFormData({
-        name: invigilator.user?.name || '',
-        email: invigilator.user?.email || '',
-        staff_id: invigilator.staff_id,
-        department: invigilator.department
-      })
-    } else {
-      setFormData({
-        name: '',
-        email: '',
-        staff_id: '',
-        department: ''
-      })
+    if (isOpen) {
+      if (invigilator) {
+        setFormData({
+          name: invigilator.user?.name || '',
+          email: invigilator.user?.email || '',
+          password: '', // Don't pre-fill password for security
+          department: invigilator.department || ''
+        })
+      } else {
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          department: ''
+        })
+      }
+      setError('')
     }
-    setError('')
   }, [invigilator, isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,10 +63,8 @@ export function InvigilatorForm({ isOpen, onClose, invigilator, onSuccess }: Inv
       const payload = {
         name: formData.name,
         email: formData.email,
-        staff_id: formData.staff_id,
-        department: formData.department,
-        // Password would typically be handled separately for new users or reset flows
-        // For simplicity, we're assuming the API handles user creation/update based on email/staff_id
+        password: formData.password,
+        department: formData.department
       }
 
       const response = invigilator
@@ -111,11 +111,12 @@ export function InvigilatorForm({ isOpen, onClose, invigilator, onSuccess }: Inv
           />
 
           <TextField
-            label="Staff ID"
-            value={formData.staff_id}
-            onChange={(value) => setFormData(prev => ({ ...prev, staff_id: value }))}
-            placeholder="e.g., INV.001"
-            required
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={(value) => setFormData(prev => ({ ...prev, password: value }))}
+            placeholder="Enter password"
+            required={!invigilator}
           />
 
           <SelectField
@@ -124,7 +125,6 @@ export function InvigilatorForm({ isOpen, onClose, invigilator, onSuccess }: Inv
             onChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
             options={departments}
             placeholder="Select department"
-            required
           />
         </div>
 

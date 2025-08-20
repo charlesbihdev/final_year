@@ -33,9 +33,9 @@ export function EnrollStudentsModal({
   const [error, setError] = useState("")
 
   const filteredStudents = availableStudents.filter(student =>
-    student.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.student_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.department.toLowerCase().includes(searchTerm.toLowerCase())
+    student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.index_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.department?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleStudentToggle = (studentId: number) => {
@@ -141,9 +141,9 @@ export function EnrollStudentsModal({
                   onCheckedChange={() => handleStudentToggle(student.id)}
                 />
                 <div className="flex-1">
-                  <div className="font-medium">{student.user?.name || 'Unknown'}</div>
+                  <div className="font-medium">{student.name || 'Unknown'}</div>
                   <div className="text-sm text-gray-500">
-                    {student.student_id} | {student.department} | Level {student.level} | Division {student.division}
+                    {student.index_number} | {student.department || 'No Department'} | Level {student.level} | Division {student.division}
                   </div>
                 </div>
               </div>
