@@ -1,124 +1,151 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { DataTable } from "@/components/ui/data-table"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, LogOut, UserCheck } from 'lucide-react'
-import type { ExamSession } from "@/types"
-import { format } from "date-fns"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar, LogOut, UserCheck, RefreshCw, AlertCircle } from "lucide-react";
+import type { ExamSession } from "@/types";
+import { format } from "date-fns";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-// Mock data for development until API is ready
-const mockSessions: ExamSession[] = [
-  {
-    id: 1,
-    course_id: 1,
-    date: "2023-12-15",
-    start_time: "09:00",
-    end_time: "11:00",
-    is_active: true,
-    course: {
-      id: 1,
-      title: "Introduction to Computer Science",
-      code: "CS101",
-      level: "100",
-      department: "Computer Science"
-    }
-  },
-  {
-    id: 2,
-    course_id: 2,
-    date: "2023-12-16",
-    start_time: "14:00",
-    end_time: "16:00",
-    is_active: true,
-    course: {
-      id: 2,
-      title: "Calculus I",
-      code: "MATH201",
-      level: "200",
-      department: "Mathematics"
-    }
-  },
-  {
-    id: 3,
-    course_id: 3,
-    date: "2023-12-18",
-    start_time: "10:00",
-    end_time: "12:00",
-    is_active: false,
-    course: {
-      id: 3,
-      title: "Physics for Engineers",
-      code: "PHY301",
-      level: "300",
-      department: "Physics"
-    }
-  }
-];
+import { invigilatorService } from "@/lib/services/invigilator-service";
+import { useAuth } from "@/lib/auth";
 
 export default function InvigilatorDashboardPage() {
-  const [assignedSessions, setAssignedSessions] = useState<ExamSession[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const [assignedSessions, setAssignedSessions] = useState<ExamSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sessionAttendance, setSessionAttendance] = useState<
+    Record<number, { present: number; total: number }>
+  >({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    // Use mock data instead of API call for now
-    setTimeout(() => {
-      setAssignedSessions(mockSessions);
-      setIsLoading(false);
-    }, 500); // Simulate loading delay
-  }, []);
+    if (!user?.id) {
+      return;
+    }
+
+    fetchAssignedSessions();
+  }, [user?.id]);
+
+  const fetchAssignedSessions = async () => {
+    if (!user?.id) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    const response = await invigilatorService.getAssignedSessions(user.id);
+
+    if (response.success && response.data) {
+      setAssignedSessions(response.data);
+      await fetchAttendanceData(response.data);
+    } else {
+      setError(response.error || "Failed to fetch assigned sessions");
+      setAssignedSessions([]);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchAssignedSessions();
+    setIsRefreshing(false);
+  };
+
+  const fetchAttendanceData = async (sessions: ExamSession[]) => {
+    const attendanceData: Record<number, { present: number; total: number }> =
+      {};
+
+    for (const session of sessions) {
+      const response = await invigilatorService.getSessionAttendance(
+        session.id
+      );
+
+      if (response.success && response.data) {
+        attendanceData[session.id] = {
+          present: response.data.present,
+          total: response.data.total,
+        };
+      } else {
+        console.warn(
+          `Failed to fetch attendance for session ${session.id}:`,
+          response.error
+        );
+        attendanceData[session.id] = { present: 0, total: 0 };
+      }
+    }
+
+    setSessionAttendance(attendanceData);
+  };
 
   const columns = [
     {
-      key: 'course.title',
-      label: 'Course',
+      key: "course.title",
+      label: "Course",
       render: (session: ExamSession) => (
         <div>
-          <div className="font-medium">{session.course?.title || '-'}</div>
+          <div className="font-medium">{session.course?.title || "-"}</div>
           <div className="text-sm text-gray-500">{session.course?.code}</div>
         </div>
-      )
+      ),
     },
     {
-      key: 'date',
-      label: 'Date',
-      render: (session: ExamSession) => format(new Date(session.date), 'PPP')
+      key: "date",
+      label: "Date",
+      render: (session: ExamSession) => format(new Date(session.date), "PPP"),
     },
     {
-      key: 'time',
-      label: 'Time',
-      render: (session: ExamSession) => `${session.start_time} - ${session.end_time}`
+      key: "time",
+      label: "Time",
+      render: (session: ExamSession) =>
+        `${session.start_time} - ${session.end_time}`,
     },
     {
-      key: 'is_active',
-      label: 'Status',
+      key: "is_active",
+      label: "Status",
       render: (session: ExamSession) => (
         <Badge variant={session.is_active ? "default" : "secondary"}>
-          {session.is_active ? 'Active' : 'Inactive'}
+          {session.is_active ? "Active" : "Inactive"}
         </Badge>
-      )
+      ),
     },
     {
-      key: 'attendance',
-      label: 'Attendance',
+      key: "attendance",
+      label: "Attendance",
       render: (session: ExamSession) => {
-        // Mock attendance data
-        const present = Math.floor(Math.random() * 30) + 10; // Random number between 10-40
-        const total = present + Math.floor(Math.random() * 10); // Add 0-10 absences
-        const percentage = Math.round((present / total) * 100);
-        
+        const attendance = sessionAttendance[session.id];
+        if (!attendance) return "Loading...";
+
+        const percentage = attendance.total > 0 
+          ? Math.round((attendance.present / attendance.total) * 100)
+          : 0;
+
         return (
           <div className="text-sm">
-            <div className="font-medium">{present}/{total} Present</div>
+            <div className="font-medium">
+              {attendance.present}/{attendance.total} Present
+            </div>
             <div className="text-gray-500">{percentage}% Attendance</div>
           </div>
         );
-      }
-    }
-  ]
+      },
+    },
+  ];
 
   const actions = (session: ExamSession) => (
     <Link href={`/invigilator/sessions/${session.id}/attendance`}>
@@ -132,7 +159,7 @@ export default function InvigilatorDashboardPage() {
         Mark Attendance
       </Button>
     </Link>
-  )
+  );
 
   if (isLoading) {
     return (
@@ -142,7 +169,7 @@ export default function InvigilatorDashboardPage() {
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -151,14 +178,56 @@ export default function InvigilatorDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Invigilator Dashboard</h1>
-            <p className="text-gray-600">Welcome, John Doe! Here are your assigned exam sessions.</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Invigilator Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Welcome, {user?.name}. Here are your assigned exam sessions.
+            </p>
           </div>
-          <Button variant="outline" className="gap-2">
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                logout();
+                router.push("/login");
+              }}
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <div className="flex items-center justify-between">
+                <span>{error}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleRefresh}
+                  className="ml-4"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Assigned Sessions List */}
         <Card>
@@ -167,20 +236,27 @@ export default function InvigilatorDashboardPage() {
               <Calendar className="w-5 h-5" />
               Your Assigned Sessions ({assignedSessions.length})
             </CardTitle>
-            <CardDescription>Upcoming and active exam sessions you are assigned to invigilate.</CardDescription>
+            <CardDescription>
+              Upcoming and active exam sessions you are assigned to invigilate.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable
               data={assignedSessions}
               columns={columns}
               actions={actions}
-              isLoading={false}
-              searchable={false}
-              emptyMessage="You are not currently assigned to any exam sessions."
+              isLoading={isRefreshing}
+              searchable={true}
+              searchPlaceholder="Search sessions by course, date, or status..."
+              emptyMessage={
+                error 
+                  ? "Unable to load sessions. Please try refreshing." 
+                  : "You are not currently assigned to any exam sessions."
+              }
             />
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

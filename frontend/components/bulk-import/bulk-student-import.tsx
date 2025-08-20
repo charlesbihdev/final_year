@@ -16,7 +16,7 @@ import { CSVParser, StudentCSVValidator, type CSVError } from "@/lib/csv-utils"
 interface StudentImportData {
   name: string
   email: string
-  student_id: string
+  index_number: string
   department: string
   level: string
   division: string
@@ -43,7 +43,7 @@ export function BulkStudentImport({ onImportComplete }: BulkStudentImportProps) 
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [currentStep, setCurrentStep] = useState<'upload' | 'preview' | 'processing' | 'results'>('upload')
 
-  const requiredHeaders = ['name', 'email', 'student_id', 'department', 'level', 'division']
+  const requiredHeaders = ['name', 'email', 'index_number', 'department', 'level', 'division']
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile)

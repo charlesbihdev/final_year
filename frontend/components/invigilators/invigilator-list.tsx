@@ -16,10 +16,6 @@ interface InvigilatorListProps {
 export function InvigilatorList({ invigilators, isLoading, onEdit, onDelete }: InvigilatorListProps) {
   const columns = [
     {
-      key: 'staff_id',
-      label: 'Staff ID'
-    },
-    {
       key: 'user.name',
       label: 'Name',
       render: (invigilator: Invigilator) => invigilator.user?.name || '-'
@@ -31,7 +27,8 @@ export function InvigilatorList({ invigilators, isLoading, onEdit, onDelete }: I
     },
     {
       key: 'department',
-      label: 'Department'
+      label: 'Department',
+      render: (invigilator: Invigilator) => invigilator.department || '-'
     }
   ]
 

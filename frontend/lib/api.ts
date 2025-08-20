@@ -1,129 +1,131 @@
-import type { ApiResponse } from '@/types'
+import type { ApiResponse } from "@/types";
 
 class ApiClient {
-  private baseUrl: string
-  
+  private baseUrl: string;
+
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ''
+    // For Next.js API routes, we need the /api prefix
+    this.baseUrl = "/api";
   }
 
   private getHeaders(): HeadersInit {
-    const token = localStorage.getItem('auth_token')
     return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    }
+      "Content-Type": "application/json",
+    };
   }
 
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        headers: this.getHeaders()
-      })
-      
-      const data = await response.json()
+        headers: this.getHeaders(),
+      });
+
+      const data = await response.json();
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.message || 'Request failed'
-      }
+        data: response.ok ? data.data : undefined,
+        error: response.ok ? undefined : data.error || data.message || "Request failed",
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
-      }
+        error: error instanceof Error ? error.message : "Network error",
+      };
     }
   }
 
   async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'POST',
+        method: "POST",
         headers: this.getHeaders(),
-        body: JSON.stringify(body)
-      })
-      
-      const data = await response.json()
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.message || 'Request failed'
-      }
+        data: response.ok ? data.data : undefined,
+        error: response.ok ? undefined : data.error || data.message || "Request failed",
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
-      }
+        error: error instanceof Error ? error.message : "Network error",
+      };
     }
   }
 
   async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: this.getHeaders(),
-        body: JSON.stringify(body)
-      })
-      
-      const data = await response.json()
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.message || 'Request failed'
-      }
+        data: response.ok ? data.data : undefined,
+        error: response.ok ? undefined : data.error || data.message || "Request failed",
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
-      }
+        error: error instanceof Error ? error.message : "Network error",
+      };
     }
   }
 
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'DELETE',
-        headers: this.getHeaders()
-      })
-      
-      const data = await response.json()
+        method: "DELETE",
+        headers: this.getHeaders(),
+      });
+
+      const data = await response.json();
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.message || 'Request failed'
-      }
+        data: response.ok ? data.data : undefined,
+        error: response.ok ? undefined : data.error || data.message || "Request failed",
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
-      }
+        error: error instanceof Error ? error.message : "Network error",
+      };
     }
   }
 
-  async uploadFile<T>(endpoint: string, formData: FormData): Promise<ApiResponse<T>> {
+  async uploadFile<T>(
+    endpoint: string,
+    formData: FormData
+  ): Promise<ApiResponse<T>> {
     try {
-      const token = localStorage.getItem('auth_token')
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          ...(token && { 'Authorization': `Bearer ${token}` })
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: formData
-      })
-      
-      const data = await response.json()
+        body: formData,
+      });
+
+      const data = await response.json();
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.message || 'Request failed'
-      }
+        data: response.ok ? data.data : undefined,
+        error: response.ok ? undefined : data.error || data.message || "Request failed",
+      };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
-      }
+        error: error instanceof Error ? error.message : "Network error",
+      };
     }
   }
 }
 
-export const api = new ApiClient()
+export const api = new ApiClient();

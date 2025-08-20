@@ -159,15 +159,8 @@ export class StudentCSVValidator {
       })
     }
 
-    // Email validation
-    if (!student.email?.trim()) {
-      errors.push({ 
-        row, 
-        field: 'email', 
-        message: 'Email is required', 
-        data: student 
-      })
-    } else {
+    // Email validation (optional)
+    if (student.email?.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(student.email.trim())) {
         errors.push({ 
@@ -179,32 +172,25 @@ export class StudentCSVValidator {
       }
     }
 
-    // Student ID validation
-    if (!student.student_id?.trim()) {
+    // Index Number validation
+    if (!student.index_number?.trim()) {
       errors.push({ 
         row, 
-        field: 'student_id', 
-        message: 'Student ID is required', 
+        field: 'index_number', 
+        message: 'Index Number is required', 
         data: student 
       })
-    } else if (student.student_id.trim().length < 5) {
+    } else if (student.index_number.trim().length < 5) {
       errors.push({ 
         row, 
-        field: 'student_id', 
-        message: 'Student ID must be at least 5 characters long', 
+        field: 'index_number', 
+        message: 'Index Number must be at least 5 characters long', 
         data: student 
       })
     }
 
-    // Department validation
-    if (!student.department?.trim()) {
-      errors.push({ 
-        row, 
-        field: 'department', 
-        message: 'Department is required', 
-        data: student 
-      })
-    }
+    // Department validation (optional)
+    // Department is optional in the new schema
 
     // Level validation
     if (!student.level?.trim()) {
@@ -235,12 +221,13 @@ export class StudentCSVValidator {
         data: student 
       })
     } else {
-      const validDivisions = ['A', 'B', 'C', 'D']
-      if (!validDivisions.includes(student.division.trim().toUpperCase())) {
+      // Allow any non-empty division (A, B, C, D, E, F, G, H, etc.)
+      const division = student.division.trim().toUpperCase()
+      if (division.length === 0 || division.length > 2) {
         errors.push({ 
           row, 
           field: 'division', 
-          message: 'Division must be one of: A, B, C, D', 
+          message: 'Division must be 1-2 characters (e.g., A, B, C, D, E, F, G, H)', 
           data: student 
         })
       }

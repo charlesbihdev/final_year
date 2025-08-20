@@ -17,9 +17,9 @@ export function StudentInfoCard({ student, enrolledCount, onEnrollClick }: Stude
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>{student.user?.name || 'Unknown'}</CardTitle>
+            <CardTitle>{student.name || 'Unknown'}</CardTitle>
             <CardDescription>
-              {student.student_id} | {student.department} | 
+              {student.index_number} | {student.department || 'No Department'} | 
               Level {student.level} | Division {student.division}
             </CardDescription>
           </div>
