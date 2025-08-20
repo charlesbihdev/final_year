@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import recognize
 from routes import train
 from routes import students
+from routes import fingerprint
 
 app = FastAPI()
 
@@ -32,3 +33,6 @@ app.include_router(train.router)
 
 # Include students route
 app.include_router(students.router)
+
+# Include fingerprint route
+app.include_router(fingerprint.router)

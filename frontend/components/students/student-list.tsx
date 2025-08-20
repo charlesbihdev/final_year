@@ -3,7 +3,7 @@
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Camera } from 'lucide-react'
+import { Edit, Trash2, Camera, Fingerprint } from 'lucide-react'
 import type { Student } from "@/types"
 
 interface StudentListProps {
@@ -12,9 +12,10 @@ interface StudentListProps {
   onEdit: (student: Student) => void
   onDelete: (studentId: number) => void
   onCaptureFace: (student: Student) => void
+  onEnrollFingerprint: (student: Student) => void
 }
 
-export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFace }: StudentListProps) {
+export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFace, onEnrollFingerprint }: StudentListProps) {
   const columns = [
     {
       key: 'index_number',
@@ -47,6 +48,17 @@ export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFa
       render: (student: Student) => (
         <Badge variant="outline">{student.division}</Badge>
       )
+    },
+    {
+      key: 'fingerprint_id',
+      label: 'Fingerprint',
+      render: (student: Student) => (
+        student.fingerprint_id ? (
+          <Badge variant="secondary">ID: {student.fingerprint_id}</Badge>
+        ) : (
+          <Badge variant="outline" className="text-gray-500">Not enrolled</Badge>
+        )
+      )
     }
   ]
 
@@ -59,6 +71,14 @@ export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFa
         title="Capture Face"
       >
         <Camera className="w-4 h-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onEnrollFingerprint(student)}
+        title="Enroll Fingerprint"
+      >
+        <Fingerprint className="w-4 h-4" />
       </Button>
       <Button
         variant="ghost"
