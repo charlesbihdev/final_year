@@ -22,7 +22,7 @@ import { invigilatorService } from "@/lib/services/invigilator-service";
 import { useAuth } from "@/lib/auth";
 
 export default function InvigilatorDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const [assignedSessions, setAssignedSessions] = useState<ExamSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +33,28 @@ export default function InvigilatorDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
+    // Check authentication and role
+    if (isAuthLoading) {
+      return; // Still loading auth state
+    }
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (user.role !== "invigilator") {
+      router.push("/");
+      return;
+    }
+
     if (!user?.id) {
+      setError("Invalid user data");
       return;
     }
 
     fetchAssignedSessions();
-  }, [user?.id]);
+  }, [user, isAuthLoading, router]);
 
   const fetchAssignedSessions = async () => {
     if (!user?.id) {
@@ -161,6 +177,19 @@ export default function InvigilatorDashboardPage() {
     </Link>
   );
 
+  // Show loading state while checking authentication
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while fetching data
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">

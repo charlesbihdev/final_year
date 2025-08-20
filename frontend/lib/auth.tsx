@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: User }>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -53,12 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
       if (data.success) {
         setUser(data.data.user);
-        return true;
+        return { success: true, user: data.data.user };
       }
-      return false;
+      return { success: false };
     } catch (error) {
       console.error("Login error:", error);
-      return false;
+      return { success: false };
     }
   };
 
