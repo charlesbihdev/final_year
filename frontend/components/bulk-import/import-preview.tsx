@@ -10,7 +10,7 @@ import { AlertCircle, CheckCircle, FileText, Upload, RotateCcw } from 'lucide-re
 interface StudentImportData {
   name: string
   email: string
-  student_id: string
+  index_number: string
   department: string
   level: string
   division: string
@@ -46,7 +46,7 @@ export function ImportPreview({
   const columns = [
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
-    { key: 'student_id', label: 'Student ID' },
+    { key: 'index_number', label: 'Index Number' },
     { key: 'department', label: 'Department' },
     { key: 'level', label: 'Level' },
     { key: 'division', label: 'Division' }
@@ -112,7 +112,7 @@ export function ImportPreview({
                     </div>
                     {error.data.name && (
                       <div className="text-sm mt-1 text-red-600">
-                        Student: {error.data.name} ({error.data.student_id})
+                        Student: {error.data.name} ({error.data.index_number})
                       </div>
                     )}
                   </AlertDescription>

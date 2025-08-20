@@ -46,19 +46,32 @@ export function SessionList({ sessions, isLoading, onEdit, onDelete, onToggle, o
         </Badge>
       )
     },
-    { // New column for Invigilators
-      key: 'invigilators',
-      label: 'Invigilators',
+    { // New column for Divisions & Invigilators
+      key: 'divisions',
+      label: 'Divisions & Invigilators',
       render: (session: ExamSession) => (
-        <div className="flex flex-wrap gap-1">
-          {session.invigilators && session.invigilators.length > 0 ? (
-            session.invigilators.map(inv => (
-              <Badge key={inv.id} variant="outline" className="text-xs">
-                {inv.user?.name || inv.staff_id}
-              </Badge>
+        <div className="space-y-1">
+          {session.divisions && session.divisions.length > 0 ? (
+            session.divisions.map(division => (
+              <div key={division.id} className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  Div {division.division}
+                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  {division.invigilators && division.invigilators.length > 0 ? (
+                    division.invigilators.map(inv => (
+                      <Badge key={inv.id} variant="outline" className="text-xs">
+                        {inv.user?.name || 'Unknown'}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-gray-400 text-xs">No invigilator</span>
+                  )}
+                </div>
+              </div>
             ))
           ) : (
-            <span className="text-gray-500 text-sm">-</span>
+            <span className="text-gray-500 text-sm">No divisions</span>
           )}
         </div>
       )

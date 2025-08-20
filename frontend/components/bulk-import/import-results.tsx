@@ -9,7 +9,7 @@ import { CheckCircle, AlertCircle, Users, RotateCcw, Eye } from 'lucide-react'
 interface StudentImportData {
   name: string
   email: string
-  student_id: string
+  index_number: string
   department: string
   level: string
   division: string
@@ -109,7 +109,7 @@ export function ImportResults({ result, onReset, onViewStudents }: ImportResults
                 <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div>
                     <div className="font-medium">{student.name}</div>
-                    <div className="text-sm text-gray-600">{student.student_id} | {student.department}</div>
+                    <div className="text-sm text-gray-600">{student.index_number} | {student.department}</div>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
                     Level {student.level}
@@ -151,7 +151,7 @@ export function ImportResults({ result, onReset, onViewStudents }: ImportResults
                     </div>
                     {error.data.name && (
                       <div className="text-sm mt-1 text-red-600">
-                        Student: {error.data.name} ({error.data.student_id})
+                        Student: {error.data.name} ({error.data.index_number})
                       </div>
                     )}
                   </AlertDescription>

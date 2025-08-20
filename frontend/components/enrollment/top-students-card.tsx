@@ -26,8 +26,8 @@ export function TopStudentsCard({ students, enrollments }: TopStudentsCardProps)
           {studentEnrollmentCounts.slice(0, 5).map((student) => (
             <div key={student.id} className="flex items-center justify-between">
               <div>
-                <div className="font-medium">{student.user?.name || 'Unknown'}</div>
-                <div className="text-sm text-gray-500">{student.student_id}</div>
+                <div className="font-medium">{student.name || 'Unknown'}</div>
+                <div className="text-sm text-gray-500">{student.index_number}</div>
               </div>
               <Badge variant="secondary">{student.enrollmentCount} courses</Badge>
             </div>

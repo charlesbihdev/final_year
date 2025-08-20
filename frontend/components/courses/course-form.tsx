@@ -42,13 +42,16 @@ export function CourseForm({ isOpen, onClose, course, onSuccess }: CourseFormPro
 
   useEffect(() => {
     if (course) {
+      const levelStr = course.level ? String(course.level) : ''
+      const deptStr = course.department ? String(course.department) : ''
+      
       setFormData({
-        title: course.title,
-        code: course.code,
-        level: course.level,
-        department: course.department
+        title: course.title || '',
+        code: course.code || '',
+        level: levelStr,
+        department: deptStr
       })
-    } else {
+    } else if (isOpen) {
       setFormData({
         title: '',
         code: '',
@@ -106,6 +109,7 @@ export function CourseForm({ isOpen, onClose, course, onSuccess }: CourseFormPro
         />
 
         <SelectField
+          key={`department-${course?.id || 'new'}`}
           label="Department"
           value={formData.department}
           onChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
@@ -115,6 +119,7 @@ export function CourseForm({ isOpen, onClose, course, onSuccess }: CourseFormPro
         />
 
         <SelectField
+          key={`level-${course?.id || 'new'}`}
           label="Level"
           value={formData.level}
           onChange={(value) => setFormData(prev => ({ ...prev, level: value }))}

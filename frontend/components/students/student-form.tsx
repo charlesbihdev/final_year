@@ -30,18 +30,13 @@ const levels = [
   { value: '400', label: 'Level 400' }
 ]
 
-const divisions = [
-  { value: 'A', label: 'Division A' },
-  { value: 'B', label: 'Division B' },
-  { value: 'C', label: 'Division C' },
-  { value: 'D', label: 'Division D' }
-]
+
 
 export function StudentForm({ isOpen, onClose, student, onSuccess }: StudentFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    student_id: '',
+    index_number: '',
     department: '',
     level: '',
     division: ''
@@ -50,26 +45,28 @@ export function StudentForm({ isOpen, onClose, student, onSuccess }: StudentForm
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (student) {
-      setFormData({
-        name: student.user?.name || '',
-        email: student.user?.email || '',
-        student_id: student.student_id,
-        department: student.department,
-        level: student.level,
-        division: student.division
-      })
-    } else {
-      setFormData({
-        name: '',
-        email: '',
-        student_id: '',
-        department: '',
-        level: '',
-        division: ''
-      })
+    if (isOpen) {
+      if (student) {
+        setFormData({
+          name: student.name || '',
+          email: student.email || '',
+          index_number: student.index_number || '',
+          department: student.department ? String(student.department) : '',
+          level: student.level ? String(student.level) : '',
+          division: student.division || ''
+        })
+      } else {
+        setFormData({
+          name: '',
+          email: '',
+          index_number: '',
+          department: '',
+          level: '',
+          division: ''
+        })
+      }
+      setError('')
     }
-    setError('')
   }, [student, isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,13 +115,12 @@ export function StudentForm({ isOpen, onClose, student, onSuccess }: StudentForm
             value={formData.email}
             onChange={(value) => setFormData(prev => ({ ...prev, email: value }))}
             placeholder="e.g., john.doe@university.edu"
-            required
           />
 
           <TextField
-            label="Student ID"
-            value={formData.student_id}
-            onChange={(value) => setFormData(prev => ({ ...prev, student_id: value }))}
+            label="Index Number"
+            value={formData.index_number}
+            onChange={(value) => setFormData(prev => ({ ...prev, index_number: value }))}
             placeholder="e.g., FOE.41.008.209.33"
             required
           />
@@ -135,7 +131,6 @@ export function StudentForm({ isOpen, onClose, student, onSuccess }: StudentForm
             onChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
             options={departments}
             placeholder="Select department"
-            required
           />
 
           <SelectField
@@ -147,12 +142,12 @@ export function StudentForm({ isOpen, onClose, student, onSuccess }: StudentForm
             required
           />
 
-          <SelectField
+          <TextField
             label="Division"
             value={formData.division}
-            onChange={(value) => setFormData(prev => ({ ...prev, division: value }))}
-            options={divisions}
-            placeholder="Select division"
+            onChange={(value) => setFormData(prev => ({ ...prev, division: value.toUpperCase() }))}
+            placeholder="e.g., A, B, C, D, E, F, G, H"
+            maxLength={2}
             required
           />
         </div>

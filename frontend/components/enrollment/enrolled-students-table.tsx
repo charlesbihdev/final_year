@@ -16,17 +16,18 @@ interface EnrolledStudentsTableProps {
 export function EnrolledStudentsTable({ students, isLoading, onUnenroll }: EnrolledStudentsTableProps) {
   const columns = [
     {
-      key: 'student_id',
-      label: 'Student ID'
+      key: 'index_number',
+      label: 'Index Number'
     },
     {
-      key: 'user.name',
+      key: 'name',
       label: 'Name',
-      render: (student: Student) => student.user?.name || '-'
+      render: (student: Student) => student.name || '-'
     },
     {
       key: 'department',
-      label: 'Department'
+      label: 'Department',
+      render: (student: Student) => student.department || '-'
     },
     {
       key: 'level',

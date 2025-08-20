@@ -58,7 +58,8 @@ export function SessionForm({ isOpen, onClose, session, courses, onSuccess }: Se
     try {
       const payload = {
         ...formData,
-        course_id: parseInt(formData.course_id)
+        course_id: parseInt(formData.course_id),
+        is_active: false // New sessions start as inactive
       }
 
       const response = session
