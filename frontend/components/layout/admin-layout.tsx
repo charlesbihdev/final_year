@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Users, BookOpen, Calendar, FileText, UserCheck, Settings, Menu, X, LogOut, UserPlus } from 'lucide-react'
 
@@ -21,9 +22,27 @@ const navigation = [
 ]
 
 export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading: isAuthLoading } = useAuth()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  useEffect(() => {
+    // Check authentication and role
+    if (isAuthLoading) {
+      return; // Still loading auth state
+    }
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (user.role !== "admin") {
+      router.push("/");
+      return;
+    }
+  }, [user, isAuthLoading, router]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -34,6 +53,23 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
     } finally {
       setIsLoggingOut(false)
     }
+  }
+
+  // Show loading state while checking authentication
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if user is not authenticated or doesn't have admin role
+  if (!user || user.role !== "admin") {
+    return null;
   }
 
   return (

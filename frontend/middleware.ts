@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Public routes that don't require authentication
-const publicRoutes = ["/login", "/", "/api/auth/login"];
+const publicRoutes = ["/login", "/", "/api/auth/login", "/api/auth/me"];
 
 // This array defines which routes require authentication and which roles can access them
 const protectedRoutes = [
@@ -22,11 +22,12 @@ const protectedRoutes = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for next.js internal routes
+  // Skip middleware for next.js internal routes and API routes
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
     pathname.startsWith("/images") ||
+    pathname.startsWith("/api/") ||
     pathname.includes(".") // Skip files like favicon.ico, manifest.json etc.
   ) {
     return NextResponse.next();
