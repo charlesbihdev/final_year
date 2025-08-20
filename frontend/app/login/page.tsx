@@ -44,14 +44,14 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    const result = await login(email, password);
+    const success = await login(email, password);
 
-    if (result.success && result.user) {
+    if (success) {
       // After successful login, check user role for redirection
-      if (result.user.role === "admin") {
+      if (user?.role === "admin") {
         router.push("/admin/courses");
-      } else if (result.user.role === "invigilator") {
-        router.push("/invigilator");
+      } else if (user?.role === "invigilator") {
+        router.push("/invigilator/dashboard");
       } else {
         // Default redirection for other roles or if role is not explicitly handled
         router.push("/");

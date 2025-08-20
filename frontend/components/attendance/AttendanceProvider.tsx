@@ -153,15 +153,14 @@ export function AttendanceProvider({ children, sessionId }: AttendanceProviderPr
     setSubmitResult(null);
     
     try {
-      const response = await api.put(`/sessions/${sessionId}`, {
-        is_active: activate
-      });
+      const response = await api.put(`/sessions/${sessionId}/toggle`, {});
       
       if (response.success) {
-        setSession(prev => prev ? { ...prev, is_active: activate } : null);
+        const newStatus = response.data?.is_active ?? !session?.is_active;
+        setSession(prev => prev ? { ...prev, is_active: newStatus } : null);
         setSubmitResult({
           success: true,
-          message: `Session ${activate ? "started" : "stopped"} successfully!`,
+          message: `Session ${newStatus ? "started" : "stopped"} successfully!`,
         });
         return true;
       } else {
