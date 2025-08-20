@@ -1,44 +1,76 @@
-from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import List
 import numpy as np
 from core.face_utils import get_face_embedding
-import sqlite3
-import logging
+from core.db import get_db_connection
 
 router = APIRouter()
-# logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger(__name__)
-
-def get_db_connection():
-    conn = sqlite3.connect("face_data.db")
-    conn.row_factory = sqlite3.Row
-    return conn
 
 @router.post("/train")
 async def train_face(
     student_id: int = Form(...),
     photos: List[UploadFile] = File(...)
 ):
-    # logger.debug(f"Training for student ID: {student_id} with {len(photos)} photos")
-    
-    embeddings = []
+    try:
+        # Validate that student exists
+        db = get_db_connection()
+        student_check = db.execute(
+            "SELECT id FROM Students WHERE id = ?", 
+            (student_id,)
+        ).fetchone()
+        
+        if not student_check:
+            raise HTTPException(status_code=404, detail=f"Student with ID {student_id} not found")
+        
+        embeddings = []
 
-    for photo in photos:
-        image_bytes = await photo.read()
-        embedding = get_face_embedding(image_bytes)
-        if embedding is not None:
-            embeddings.append(embedding)
+        for photo in photos:
+            try:
+                image_bytes = await photo.read()
+                embedding = get_face_embedding(image_bytes)
+                if embedding is not None:
+                    embeddings.append(embedding)
+            except Exception:
+                continue
 
-    if not embeddings:
-        return {"message": "No valid faces detected"}
+        if not embeddings:
+            raise HTTPException(status_code=400, detail="No valid faces detected in any of the uploaded photos")
 
-    avg_embedding = np.mean(embeddings, axis=0).astype(np.float32)
-    blob = avg_embedding.tobytes()
+        # Calculate average embedding
+        avg_embedding = np.mean(embeddings, axis=0).astype(np.float32)
+        blob = avg_embedding.tobytes()
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO faces (student_id, embedding) VALUES (?, ?)", (student_id, blob))
-    conn.commit()
-    conn.close()
+        # Check if student already has face data
+        existing_face = db.execute(
+            "SELECT id FROM FaceData WHERE student_id = ?", 
+            (student_id,)
+        ).fetchone()
+        
+        if existing_face:
+            # Update existing face data
+            db.execute(
+                "UPDATE FaceData SET embedding = ? WHERE student_id = ?", 
+                (blob, student_id)
+            )
+        else:
+            # Insert new face data
+            db.execute(
+                "INSERT INTO FaceData (student_id, embedding) VALUES (?, ?)", 
+                (student_id, blob)
+            )
+        
+        # Commit the transaction to ensure data is saved
+        db.commit()
 
-    return {"message": f"Successfully Trained {len(embeddings)} image(s) for the student {student_id}"}
+        return {
+            "success": True,
+            "message": f"Successfully trained {len(embeddings)} image(s) for student {student_id}",
+            "student_id": student_id,
+            "photos_processed": len(embeddings),
+            "photos_total": len(photos)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(e)}")

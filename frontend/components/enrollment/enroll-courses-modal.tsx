@@ -35,7 +35,7 @@ export function EnrollCoursesModal({
   const filteredCourses = availableCourses.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.department.toLowerCase().includes(searchTerm.toLowerCase())
+    course.department?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleCourseToggle = (courseId: number) => {

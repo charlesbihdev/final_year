@@ -2,25 +2,25 @@ export interface User {
   id: number
   name: string
   email: string
-  role: 'admin' | 'invigilator' | 'student'
+  role: 'admin' | 'invigilator'
 }
 
 export interface Student {
   id: number
-  user_id: number
-  student_id: string
-  department: string
-  level: string
-  division: string
-  user?: User
+  name: string
+  email: string | null
+  index_number: string
+  department: string | null
+  level: 100 | 200 | 300 | 400
+  division: 'A' | 'B' | 'C' | 'D'
 }
 
 export interface Course {
   id: number
   title: string
   code: string
-  level: string
-  department: string
+  level: 100 | 200 | 300 | 400 | null
+  department: string | null
 }
 
 export interface StudentCourse {
@@ -39,13 +39,24 @@ export interface ExamSession {
   end_time: string
   is_active: boolean
   course?: Course
-  invigilators?: Invigilator[] // Added this line
+  divisions?: SessionDivision[] // Updated to divisions
+}
+
+export interface SessionDivision {
+  id: number
+  session_id: number
+  division: string
+  room_number: string | null
+  max_capacity: number | null
+  invigilators?: Invigilator[]
+  student_count?: number
 }
 
 export interface AttendanceRecord {
   id: number
   student_id: number
   session_id: number
+  session_division_id: number
   timestamp: string
   method: 'face' | 'fingerprint' | 'manual'
   status: 'present' | 'absent'
@@ -62,8 +73,7 @@ export interface FaceData {
 export interface Invigilator {
   id: number
   user_id: number
-  staff_id: string
-  department: string
+  department: string | null
   user?: User
 }
 

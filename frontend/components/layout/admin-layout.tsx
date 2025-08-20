@@ -14,15 +14,27 @@ const navigation = [
   { name: 'Courses', href: '/admin/courses', icon: BookOpen },
   { name: 'Students', href: '/admin/students', icon: Users },
   { name: 'Enrollment', href: '/admin/enrollment', icon: UserPlus },
+  { name: 'Invigilators', href: '/admin/invigilators', icon: UserCheck },
   { name: 'Sessions', href: '/admin/sessions', icon: Calendar },
   { name: 'Attendance', href: '/admin/attendance', icon: FileText },
-  { name: 'Invigilators', href: '/admin/invigilators', icon: UserCheck },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  // { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
   const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await logout()
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,9 +93,14 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
           ))}
         </nav>
         <div className="absolute bottom-4 left-4 right-4">
-          <Button variant="outline" onClick={logout} className="w-full gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleLogout} 
+            disabled={isLoggingOut}
+            className="w-full gap-2"
+          >
             <LogOut className="w-4 h-4" />
-            Logout
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
           </Button>
         </div>
       </div>
@@ -108,9 +125,14 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
               <span className="text-sm text-gray-500 hidden sm:block">
                 {user?.name} ({user?.role})
               </span>
-              <Button variant="outline" onClick={logout} className="hidden lg:flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleLogout} 
+                disabled={isLoggingOut}
+                className="hidden lg:flex gap-2"
+              >
                 <LogOut className="w-4 h-4" />
-                Logout
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </Button>
             </div>
           </div>
