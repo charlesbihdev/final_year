@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Public routes that don't require authentication
-const publicRoutes = ["/login", "/", "/api/auth/login", "/api/auth/me"];
+const publicRoutes = ["/login", "/", "/api/auth/login"];
 
 // This array defines which routes require authentication and which roles can access them
 const protectedRoutes = [
@@ -22,13 +22,13 @@ const protectedRoutes = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for next.js internal routes and API routes
+  // Skip middleware for next.js internal routes and API routes that don't need auth
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
     pathname.startsWith("/images") ||
-    pathname.startsWith("/api/") ||
-    pathname.includes(".") // Skip files like favicon.ico, manifest.json etc.
+    pathname.includes(".") || // Skip files like favicon.ico, manifest.json etc.
+    pathname.startsWith("/api/auth/login") // Allow login API route
   ) {
     return NextResponse.next();
   }
@@ -41,8 +41,9 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from login page
   if (pathname === "/login") {
     try {
-      const token = request.cookies.get("token")?.value;
-      if (token) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
         // User is already logged in, redirect based on role
         const encodedKey = new TextEncoder().encode(JWT_SECRET);
         const { payload } = await jwtVerify(token, encodedKey);
@@ -71,10 +72,12 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const token = request.cookies.get("token")?.value || "";
-    if (!token) {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return redirectToLogin(request);
     }
+
+    const token = authHeader.substring(7);
 
     // Verify JWT token
     const encodedKey = new TextEncoder().encode(JWT_SECRET);
@@ -105,7 +108,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - api/auth/login (login API route)
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/auth/login).*)",
   ],
 };

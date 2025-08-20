@@ -6,17 +6,28 @@ export async function PUT(
   context: { params: Promise<{ sessionId: string }> }
 ) {
   try {
-    const { sessionId } = await context.params;
-    const { is_active } = await request.json();
+    const params = await context.params;
+    const sessionId = parseInt(params.sessionId);
+    
+    // Get current session status
+    const session = await examSessionsDb.getSession(sessionId);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Session not found" },
+        { status: 404 }
+      );
+    }
 
-    await examSessionsDb.updateSession(parseInt(sessionId), { is_active });
+    // Toggle the status
+    const newStatus = !session.is_active;
+    await examSessionsDb.updateSession(sessionId, { is_active: newStatus });
 
     return NextResponse.json({
       success: true,
-      message: `Session ${is_active ? 'activated' : 'deactivated'} successfully`,
+      data: { is_active: newStatus },
     });
   } catch (error) {
-    console.error("Error toggling session:", error);
+    console.error("Error toggling session status:", error);
     return NextResponse.json(
       { success: false, error: "Failed to toggle session status" },
       { status: 500 }
