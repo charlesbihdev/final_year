@@ -85,10 +85,6 @@ export default function InvigilatorDashboardPage() {
           total: response.data.total,
         };
       } else {
-        console.warn(
-          `Failed to fetch attendance for session ${session.id}:`,
-          response.error
-        );
         attendanceData[session.id] = { present: 0, total: 0 };
       }
     }
@@ -168,7 +164,6 @@ export default function InvigilatorDashboardPage() {
               alert("Failed to toggle session status");
             }
           } catch (error) {
-            console.error("Error toggling session:", error);
             alert("Failed to toggle session status");
           }
         }}
