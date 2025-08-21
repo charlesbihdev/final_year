@@ -18,7 +18,7 @@ const navigation = [
   { name: 'Enrollment', href: '/admin/enrollment', icon: UserPlus },
   { name: 'Invigilators', href: '/admin/invigilators', icon: UserCheck },
   { name: 'Sessions', href: '/admin/sessions', icon: Calendar },
-  { name: 'Attendance', href: '/admin/attendance', icon: FileText },
+  // { name: 'Attendance', href: '/admin/attendance', icon: FileText },
   // { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 

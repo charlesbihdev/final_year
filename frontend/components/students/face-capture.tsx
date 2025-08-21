@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Upload, X } from "lucide-react";
 import { fastApi } from "@/lib/face-api";
 import type { Student } from "@/types";
 
@@ -24,39 +24,69 @@ export function FaceCapture({
   student,
   onSuccess,
 }: FaceCaptureProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [isTraining, setIsTraining] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files) return;
+    
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    
+    // Convert FileList to array and take up to 2 files
+    const fileArray = Array.from(files).slice(0, 2);
+    
+    // Process files sequentially to avoid race conditions
+    for (const file of fileArray) {
+      newFiles.push(file);
+      
+      // Create preview synchronously
+      const preview = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      newPreviews.push(preview);
+    }
+    
+    // Append new files to existing ones (up to 2 total)
+    const totalFiles = [...selectedFiles, ...newFiles].slice(0, 2);
+    const totalPreviews = [...previews, ...newPreviews].slice(0, 2);
+    
+    setSelectedFiles(totalFiles);
+    setPreviews(totalPreviews);
     setResult(null);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    await handleFileSelect(e.target.files);
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = selectedFiles.filter((_, i) => i !== index);
+    const newPreviews = previews.filter((_, i) => i !== index);
+    setSelectedFiles(newFiles);
+    setPreviews(newPreviews);
   };
 
   const handleTraining = async () => {
-    if (!selectedFile || !student) return;
+    if (selectedFiles.length === 0 || !student) return;
 
     setIsTraining(true);
     setResult(null);
 
     try {
       const formData = new FormData();
-      // The API expects 'photos' as a list of files and 'student_id' as form data
-      formData.append("photos", selectedFile);
+      // Append multiple photos for better accuracy
+      selectedFiles.forEach((file) => {
+        formData.append("photos", file);
+      });
       formData.append("student_id", student.id.toString());
 
       const response = await fastApi.uploadFace(student.id, formData);
@@ -81,8 +111,8 @@ export function FaceCapture({
   };
 
   const resetForm = () => {
-    setSelectedFile(null);
-    setPreview(null);
+    setSelectedFiles([]);
+    setPreviews([]);
     setResult(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -112,38 +142,66 @@ export function FaceCapture({
         )}
 
         <div>
-          <Label htmlFor="face-photo">Capture or Upload Photo</Label>
+          <Label htmlFor="face-photo">
+            Upload 2 Photos for Better Accuracy 
+            {selectedFiles.length > 0 && (
+              <span className="text-sm text-gray-500 ml-2">
+                ({selectedFiles.length}/2)
+              </span>
+            )}
+          </Label>
           <Input
             ref={fileInputRef}
             id="face-photo"
             type="file"
             accept="image/*"
+            multiple
             onChange={handleFileUpload}
             className="mt-1"
+            disabled={selectedFiles.length >= 2}
           />
           <p className="text-sm text-gray-500 mt-1">
-            Please ensure the photo shows a clear view of the face
+            {selectedFiles.length >= 2 
+              ? "Maximum 2 photos reached. Remove a photo to add more."
+              : "Upload 2 different photos showing clear views of the face from different angles"
+            }
           </p>
         </div>
 
-        {preview && (
+        {previews.length > 0 && (
           <div className="space-y-3">
-            <div className="relative">
-              <img
-                src={preview || "/placeholder.svg"}
-                alt="Face preview"
-                className="w-full max-w-md mx-auto h-64 object-cover rounded-lg border"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              {previews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Face preview ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeFile(index)}
+                    className="absolute top-2 right-2 h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                  <div className="text-xs text-center mt-1 text-gray-500">
+                    Photo {index + 1}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="flex gap-2">
               <Button
                 onClick={handleTraining}
-                disabled={isTraining}
+                disabled={isTraining || selectedFiles.length === 0}
                 className="flex-1 gap-2"
               >
                 <Upload className="w-4 h-4" />
-                {isTraining ? "Registering..." : "Register Face"}
+                {isTraining ? "Registering..." : `Register Face (${selectedFiles.length} photos)`}
               </Button>
               <Button onClick={resetForm} variant="outline">
                 Reset
@@ -155,7 +213,7 @@ export function FaceCapture({
         {isTraining && (
           <div className="space-y-2">
             <div className="text-center text-sm text-gray-600">
-              Processing face data...
+              Processing {selectedFiles.length} face images...
             </div>
             <Progress value={undefined} className="w-full" />
           </div>
