@@ -13,6 +13,7 @@ export interface Student {
   department: string | null
   level: 100 | 200 | 300 | 400
   division: 'A' | 'B' | 'C' | 'D'
+  fingerprint_id: number | null
 }
 
 export interface Course {

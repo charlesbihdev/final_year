@@ -26,13 +26,14 @@ export function ManualAttendance({
 }: ManualAttendanceProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredStudents = students.filter(student =>
-    student.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.student_id.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = students.filter(
+    (student) =>
+      student.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.student_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStudentAttendanceStatus = (studentId: number) => {
-    return attendanceRecords.find(record => record.student_id === studentId);
+    return attendanceRecords.find((record) => record.student_id === studentId);
   };
 
   return (
@@ -66,12 +67,16 @@ export function ManualAttendance({
               <div
                 key={student.id}
                 className={`flex items-center justify-between p-3 border rounded-lg ${
-                  isPresent ? "bg-green-50 border-green-200" : "bg-white border-gray-200"
+                  isPresent
+                    ? "bg-green-50 border-green-200"
+                    : "bg-white border-gray-200"
                 }`}
               >
                 <div>
                   <div className="font-medium">{student.user?.name}</div>
-                  <div className="text-sm text-gray-600">{student.student_id}</div>
+                  <div className="text-sm text-gray-600">
+                    {student.student_id}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {isPresent && (
