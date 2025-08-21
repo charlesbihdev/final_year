@@ -78,14 +78,14 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg">
+          <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">Admin Panel</h2>
               <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <nav className="p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -102,6 +102,20 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
                 </Link>
               ))}
             </nav>
+            <div className="p-4 border-t">
+              <div className="mb-3 px-3 py-2">
+                <p className="text-sm text-gray-500">Welcome, {user?.name}</p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout} 
+                disabled={isLoggingOut}
+                className="w-full gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -157,7 +171,7 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
               </Button>
               <h1 className="text-xl font-semibold capitalize">{currentPage}</h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-sm text-gray-500 hidden sm:block">
                 {user?.name} ({user?.role})
               </span>
@@ -169,6 +183,16 @@ export function AdminLayout({ children, currentPage }: AdminLayoutProps) {
               >
                 <LogOut className="w-4 h-4" />
                 {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </Button>
+              {/* Mobile logout button */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleLogout} 
+                disabled={isLoggingOut}
+                className="lg:hidden"
+              >
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
