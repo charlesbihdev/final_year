@@ -11,7 +11,11 @@ interface SessionHeaderProps {
   isLoading: boolean;
 }
 
-export function SessionHeader({ session, onToggleSession, isLoading }: SessionHeaderProps) {
+export function SessionHeader({
+  session,
+  onToggleSession,
+  isLoading,
+}: SessionHeaderProps) {
   return (
     <div className="flex items-center gap-4">
       <Link href="/invigilator">
@@ -24,7 +28,8 @@ export function SessionHeader({ session, onToggleSession, isLoading }: SessionHe
           {session.course?.title} - Attendance
         </h1>
         <p className="text-gray-600">
-          {format(new Date(session.date), "PPP")} • {session.start_time} - {session.end_time}
+          {format(new Date(session.date), "PPP")} • {session.start_time} -{" "}
+          {session.end_time}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -37,7 +42,11 @@ export function SessionHeader({ session, onToggleSession, isLoading }: SessionHe
           disabled={isLoading}
           className="gap-2"
         >
-          {session.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          {session.is_active ? (
+            <Pause className="w-4 h-4" />
+          ) : (
+            <Play className="w-4 h-4" />
+          )}
           {session.is_active ? "Stop Session" : "Start Session"}
         </Button>
       </div>

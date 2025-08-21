@@ -17,10 +17,10 @@ interface AttendanceOverviewProps {
   onRefresh: () => void;
 }
 
-export function AttendanceOverview({ 
-  attendanceRecords, 
-  totalEnrolled, 
-  onRefresh 
+export function AttendanceOverview({
+  attendanceRecords,
+  totalEnrolled,
+  onRefresh,
 }: AttendanceOverviewProps) {
   return (
     <Card>
@@ -39,10 +39,15 @@ export function AttendanceOverview({
       <CardContent>
         <div className="space-y-3">
           {attendanceRecords.map((record) => (
-            <div key={record.id} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div
+              key={record.id}
+              className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg"
+            >
               <div>
                 <div className="font-medium">{record.student?.user?.name}</div>
-                <div className="text-sm text-gray-600">{record.student?.student_id}</div>
+                <div className="text-sm text-gray-600">
+                  {record.student?.student_id}
+                </div>
               </div>
               <div className="text-right">
                 <Badge variant="secondary" className="mb-1">
@@ -54,10 +59,11 @@ export function AttendanceOverview({
               </div>
             </div>
           ))}
-          
+
           {attendanceRecords.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              No attendance records yet. Students can mark attendance using face recognition or manual entry.
+              No attendance records yet. Students can mark attendance using face
+              recognition or manual entry.
             </div>
           )}
         </div>
