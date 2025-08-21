@@ -1,39 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sessionDivisionsDb } from "@/lib/db/session-divisions";
 
-export async function GET(
+export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ sessionId: string }> }
+  { params }: { params: Promise<{ divisionId: string }> }
 ) {
   try {
     const resolvedParams = await params;
-    const sessionId = parseInt(resolvedParams.sessionId);
-    
-    const divisions = await sessionDivisionsDb.getSessionDivisionsWithDetails(sessionId);
-    
-    return NextResponse.json({
-      success: true,
-      data: { divisions },
-    });
-  } catch (error) {
-    console.error("Failed to fetch session divisions:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch session divisions",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ sessionId: string }> }
-) {
-  try {
-    const resolvedParams = await params;
-    const sessionId = parseInt(resolvedParams.sessionId);
+    const divisionId = parseInt(resolvedParams.divisionId);
     const body = await request.json();
     
     const { division, room_number, max_capacity } = body;
@@ -48,8 +22,7 @@ export async function POST(
       );
     }
     
-    const divisionId = await sessionDivisionsDb.createSessionDivision({
-      session_id: sessionId,
+    await sessionDivisionsDb.updateSessionDivision(divisionId, {
       division,
       room_number,
       max_capacity,
@@ -60,7 +33,7 @@ export async function POST(
       data: { id: divisionId },
     });
   } catch (error) {
-    console.error("Failed to create session division:", error);
+    console.error("Failed to update session division:", error);
     
     // Handle unique constraint error
     if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
@@ -76,7 +49,33 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to create session division",
+        error: error instanceof Error ? error.message : "Failed to update session division",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ divisionId: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const divisionId = parseInt(resolvedParams.divisionId);
+    
+    await sessionDivisionsDb.deleteSessionDivision(divisionId);
+    
+    return NextResponse.json({
+      success: true,
+      data: { id: divisionId },
+    });
+  } catch (error) {
+    console.error("Failed to delete session division:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to delete session division",
       },
       { status: 500 }
     );
