@@ -24,16 +24,15 @@ export function FingerprintEnrollment({
   onSuccess,
 }: FingerprintEnrollmentProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isEnrolling, setIsEnrolling] = useState(false);
+
   const [isClearing, setIsClearing] = useState(false);
   const [fingerprintId, setFingerprintId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("");
   const [result, setResult] = useState<string | null>(null);
-  const [step, setStep] = useState<"idle" | "generating" | "waiting" | "enrolling" | "completed">("idle");
+  const [step, setStep] = useState<"idle" | "generating" | "waiting" | "completed">("idle");
 
   const resetState = () => {
     setIsGenerating(false);
-    setIsEnrolling(false);
     setIsClearing(false);
     setFingerprintId(null);
     setStatus("");
@@ -84,54 +83,16 @@ export function FingerprintEnrollment({
     }
   };
 
-  const checkEnrollmentStatus = async () => {
-    if (!fingerprintId) return;
 
-    setIsEnrolling(true);
-    setStep("enrolling");
-    setStatus("Checking enrollment status...");
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/fingerprint/get`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data !== null) {
-        const enrolledId = data;
-        if (enrolledId === fingerprintId) {
-          setStatus("Fingerprint enrolled successfully!");
-          setResult("Fingerprint has been successfully enrolled. You can now close this window.");
-          setStep("completed");
-        } else {
-          setStatus("Waiting for fingerprint enrollment...");
-          setResult("Please complete the fingerprint enrollment on the sensor device.");
-          setStep("waiting");
-        }
-      } else {
-        setStatus("Waiting for fingerprint enrollment...");
-        setResult("Please complete the fingerprint enrollment on the sensor device.");
-        setStep("waiting");
-      }
-    } catch (error) {
-      console.error("Error checking enrollment status:", error);
-      setResult("Network error: Could not check enrollment status");
-      setStep("waiting");
-    } finally {
-      setIsEnrolling(false);
-    }
-  };
 
   const clearFingerprint = async () => {
+    if (!student) return;
+    
     setIsClearing(true);
-    setStatus("Clearing temporary fingerprint data...");
+    setStatus("Assigning fingerprint to student and clearing temporary data...");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/fingerprint/clear`, {
+      const response = await fetch(`${BACKEND_URL}/fingerprint/clear/${student.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -141,16 +102,16 @@ export function FingerprintEnrollment({
       const data = await response.json();
       
       if (response.ok) {
-        setStatus("Temporary data cleared successfully!");
+        setStatus("Fingerprint assigned to student successfully!");
         setTimeout(() => {
           onSuccess();
         }, 1500);
       } else {
-        setResult(data.detail || "Failed to clear temporary data");
+        setResult(data.detail || "Failed to assign fingerprint to student");
       }
     } catch (error) {
-      console.error("Error clearing fingerprint:", error);
-      setResult("Network error: Could not clear temporary data");
+      console.error("Error assigning fingerprint:", error);
+      setResult("Network error: Could not assign fingerprint to student");
     } finally {
       setIsClearing(false);
     }
@@ -162,22 +123,7 @@ export function FingerprintEnrollment({
     }
   };
 
-  // Auto-check enrollment status every 2 seconds when waiting
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (step === "waiting" && fingerprintId) {
-      interval = setInterval(() => {
-        checkEnrollmentStatus();
-      }, 2000);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [step, fingerprintId]);
+  // No automatic polling - user will manually check status
 
   return (
     <Modal
@@ -203,16 +149,14 @@ export function FingerprintEnrollment({
             <div className={`p-4 rounded-full ${
               step === "idle" ? "bg-gray-100" :
               step === "generating" ? "bg-blue-100" :
-              step === "waiting" ? "bg-yellow-100" :
-              step === "enrolling" ? "bg-blue-100" :
-              "bg-green-100"
+                             step === "waiting" ? "bg-yellow-100" :
+               "bg-green-100"
             }`}>
               <Fingerprint className={`w-8 h-8 ${
                 step === "idle" ? "text-gray-400" :
                 step === "generating" ? "text-blue-600" :
-                step === "waiting" ? "text-yellow-600" :
-                step === "enrolling" ? "text-blue-600" :
-                "text-green-600"
+                               step === "waiting" ? "text-yellow-600" :
+               "text-green-600"
               }`} />
             </div>
           </div>
@@ -242,32 +186,31 @@ export function FingerprintEnrollment({
             </div>
           )}
 
-          {step === "waiting" && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Place Finger on Sensor</h3>
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
-                  <span className="font-medium text-yellow-800">Instructions</span>
-                </div>
-                <ul className="text-sm text-yellow-700 space-y-1">
-                  <li>• Place your finger on the fingerprint sensor</li>
-                  <li>• Follow the sensor's enrollment instructions</li>
-                  <li>• Use fingerprint ID: <strong>{fingerprintId}</strong></li>
-                  <li>• Wait for enrollment confirmation</li>
-                </ul>
-              </div>
-              <p className="text-sm text-gray-600">{status}</p>
-            </div>
-          )}
-
-          {step === "enrolling" && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Checking Enrollment</h3>
-              <Progress value={undefined} className="w-full" />
-              <p className="text-sm text-gray-600">{status}</p>
-            </div>
-          )}
+                     {step === "waiting" && (
+             <div className="space-y-4">
+               <h3 className="text-lg font-medium">Place Finger on Sensor</h3>
+               <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                 <div className="flex items-center gap-2 mb-2">
+                   <AlertCircle className="w-5 h-5 text-yellow-600" />
+                   <span className="font-medium text-yellow-800">Instructions</span>
+                 </div>
+                 <ul className="text-sm text-yellow-700 space-y-1">
+                   <li>• Place your finger on the fingerprint sensor</li>
+                   <li>• Follow the sensor's enrollment instructions</li>
+                   <li>• Use fingerprint ID: <strong>{fingerprintId}</strong></li>
+                   <li>• Click "Done" when enrollment is complete</li>
+                 </ul>
+               </div>
+               <p className="text-sm text-gray-600">{status}</p>
+               <Button
+                 onClick={clearFingerprint}
+                 disabled={isClearing}
+                 className="gap-2"
+               >
+                 {isClearing ? "Clearing..." : "Done"}
+               </Button>
+             </div>
+           )}
 
           {step === "completed" && (
             <div className="space-y-4">
@@ -318,7 +261,7 @@ export function FingerprintEnrollment({
             variant="outline"
             onClick={handleClose}
             className="flex-1"
-            disabled={step === "generating" || step === "enrolling" || step === "completed"}
+                         disabled={step === "generating" || step === "completed"}
           >
             Close
           </Button>
