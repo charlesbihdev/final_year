@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { AdminLayout } from "@/components/layout/admin-layout"
 import { SessionList } from "@/components/sessions/session-list"
 import { SessionForm } from "@/components/sessions/session-form"
+import { SessionDivisionsForm } from "@/components/sessions/session-divisions-form"
 import { AssignInvigilatorsModal } from "@/components/sessions/assign-invigilators-modal" // New import
 import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
@@ -16,8 +17,10 @@ export default function SessionsPage() {
   const [invigilators, setInvigilators] = useState<Invigilator[]>([]) // New state for invigilators
   const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [showDivisionsForm, setShowDivisionsForm] = useState(false)
   const [showAssignInvigilatorsModal, setShowAssignInvigilatorsModal] = useState(false) // New state for modal
   const [editingSession, setEditingSession] = useState<ExamSession | null>(null)
+  const [sessionForDivisions, setSessionForDivisions] = useState<ExamSession | null>(null)
   const [sessionToAssignInvigilators, setSessionToAssignInvigilators] = useState<ExamSession | null>(null) // New state for selected session
 
   useEffect(() => {
@@ -75,6 +78,11 @@ export default function SessionsPage() {
     }
   }
 
+  const handleManageDivisions = (session: ExamSession) => {
+    setSessionForDivisions(session)
+    setShowDivisionsForm(true)
+  }
+
   const handleAssignInvigilators = (session: ExamSession) => {
     setSessionToAssignInvigilators(session)
     setShowAssignInvigilatorsModal(true)
@@ -84,6 +92,12 @@ export default function SessionsPage() {
     setShowForm(false)
     setEditingSession(null)
     fetchData() // Refresh all data
+  }
+
+  const handleDivisionsSuccess = () => {
+    setShowDivisionsForm(false)
+    setSessionForDivisions(null)
+    fetchData()
   }
 
   const handleAssignInvigilatorsSuccess = () => {
@@ -112,6 +126,7 @@ export default function SessionsPage() {
           onEdit={handleEditSession}
           onDelete={handleDeleteSession}
           onToggle={handleToggleSession}
+          onManageDivisions={handleManageDivisions}
           onAssignInvigilators={handleAssignInvigilators} // New prop
         />
 
@@ -121,6 +136,13 @@ export default function SessionsPage() {
           session={editingSession}
           courses={courses}
           onSuccess={handleFormSuccess}
+        />
+
+        <SessionDivisionsForm
+          isOpen={showDivisionsForm}
+          onClose={() => setShowDivisionsForm(false)}
+          session={sessionForDivisions}
+          onSuccess={handleDivisionsSuccess}
         />
 
         <AssignInvigilatorsModal

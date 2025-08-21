@@ -106,6 +106,19 @@ function AttendancePageContent() {
             <p className="text-gray-600">
               {format(new Date(session.date), "PPP")} • {session.start_time} - {session.end_time}
             </p>
+            {/* Display divisions and rooms */}
+            {session.divisions && session.divisions.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {session.divisions.map((division) => (
+                  <Badge key={division.id} variant="outline" className="text-xs">
+                    Division {division.division}
+                    {division.room_number && (
+                      <span className="ml-1">• Room {division.room_number}</span>
+                    )}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Badge variant={session.is_active ? "default" : "secondary"}>

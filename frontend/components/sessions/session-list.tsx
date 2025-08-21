@@ -3,7 +3,7 @@
 import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Play, Pause, UserPlus } from 'lucide-react' // Added UserPlus
+import { Edit, Trash2, Play, Pause, UserPlus, Building2 } from 'lucide-react' // Added UserPlus
 import type { ExamSession } from "@/types"
 
 interface SessionListProps {
@@ -12,10 +12,11 @@ interface SessionListProps {
   onEdit: (session: ExamSession) => void
   onDelete: (sessionId: number) => void
   onToggle: (sessionId: number, isActive: boolean) => void
+  onManageDivisions: (session: ExamSession) => void
   onAssignInvigilators: (session: ExamSession) => void // New prop
 }
 
-export function SessionList({ sessions, isLoading, onEdit, onDelete, onToggle, onAssignInvigilators }: SessionListProps) {
+export function SessionList({ sessions, isLoading, onEdit, onDelete, onToggle, onManageDivisions, onAssignInvigilators }: SessionListProps) {
   const columns = [
     {
       key: 'course.title',
@@ -57,6 +58,11 @@ export function SessionList({ sessions, isLoading, onEdit, onDelete, onToggle, o
                 <Badge variant="secondary" className="text-xs">
                   Div {division.division}
                 </Badge>
+                {division.room_number && (
+                  <Badge variant="outline" className="text-xs">
+                    Room {division.room_number}
+                  </Badge>
+                )}
                 <div className="flex flex-wrap gap-1">
                   {division.invigilators && division.invigilators.length > 0 ? (
                     division.invigilators.map(inv => (
@@ -80,6 +86,14 @@ export function SessionList({ sessions, isLoading, onEdit, onDelete, onToggle, o
 
   const actions = (session: ExamSession) => (
     <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onManageDivisions(session)}
+        title="Manage Divisions & Rooms"
+      >
+        <Building2 className="w-4 h-4" />
+      </Button>
       <Button
         variant="ghost"
         size="sm"
