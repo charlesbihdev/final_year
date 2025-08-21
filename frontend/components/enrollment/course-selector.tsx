@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BookOpen } from 'lucide-react'
 import type { Course } from "@/types"
 
@@ -22,18 +21,18 @@ export function CourseSelector({ courses, selectedCourseId, onCourseChange }: Co
         <CardDescription>Choose a course to manage its enrollments</CardDescription>
       </CardHeader>
       <CardContent>
-        <Select value={selectedCourseId} onValueChange={onCourseChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose a course" />
-          </SelectTrigger>
-          <SelectContent>
-            {courses.map((course) => (
-              <SelectItem key={course.id} value={course.id.toString()}>
-                {course.code} - {course.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select 
+          value={selectedCourseId} 
+          onChange={(e) => onCourseChange(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Choose a course</option>
+          {courses.map((course) => (
+            <option key={course.id} value={course.id.toString()}>
+              {course.code} - {course.title}
+            </option>
+          ))}
+        </select>
       </CardContent>
     </Card>
   )
