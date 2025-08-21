@@ -1,30 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 import numpy as np
-from facenet_pytorch import MTCNN, InceptionResnetV1
-from PIL import Image
-import torch
 from sklearn.metrics.pairwise import cosine_similarity
-import io
 
 from core.db import get_db_connection  # 🔥 use Turso DB
+from core.face_utils import get_face_embedding  # Use optimized face detection
 
 router = APIRouter()
-
-# Load models
-mtcnn = MTCNN(image_size=160, margin=0)
-resnet = InceptionResnetV1(pretrained='vggface2').eval()
-
-
-# Convert image to embedding
-def get_face_embedding(image_bytes):
-    img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-    face = mtcnn(img)
-    if face is None:
-        return None
-    with torch.no_grad():
-        embedding = resnet(face.unsqueeze(0)).numpy()[0]
-    return embedding
-
 
 @router.post("/recognize")
 async def recognize(photo: UploadFile = File(...), session_id: int = Form(None)):
@@ -32,7 +13,10 @@ async def recognize(photo: UploadFile = File(...), session_id: int = Form(None))
     new_embedding = get_face_embedding(image_bytes)
 
     if new_embedding is None:
-        raise HTTPException(status_code=400, detail="No face detected in image")
+        raise HTTPException(
+            status_code=400, 
+            detail="No face detected in image. Please ensure: 1) Face is clearly visible, 2) Good lighting, 3) Face is directly facing camera, 4) No obstructions"
+        )
 
     db = get_db_connection()
 
