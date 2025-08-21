@@ -12,6 +12,7 @@ app = FastAPI()
 # Allow React frontend to connect
 origins = [
     "http://localhost:3000",
+    "https://final-year-rose.vercel.app",
 ]
 
 app.add_middleware(
