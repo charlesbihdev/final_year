@@ -29,7 +29,11 @@ class FastApiClient {
 
       const data = await response.json();
       
-      if (response.ok) {
+      // Debug logging to help identify response structure issues
+      console.log("FastAPI Response:", { status: response.status, data });
+      
+      // FastAPI returns success directly in the response body
+      if (response.ok && data.success) {
         return {
           success: true,
           data: data as T,
@@ -40,7 +44,7 @@ class FastApiClient {
         let errorMessage = "Failed to upload face data";
         
         if (response.status === 404) {
-          errorMessage = "Student not found in database";
+          errorMessage = data.detail || "Student not found in database";
         } else if (response.status === 400) {
           errorMessage = data.detail || "No valid faces detected in the photo";
         } else if (response.status === 500) {
