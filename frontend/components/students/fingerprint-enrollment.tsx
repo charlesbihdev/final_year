@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Fingerprint, CheckCircle, AlertCircle } from "lucide-react";
 import type { Student } from "@/types";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_FAST_API_URL || 'http://localhost:8000';
 
 interface FingerprintEnrollmentProps {
   isOpen: boolean;
