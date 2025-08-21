@@ -14,6 +14,7 @@ export interface Student {
   level: 100 | 200 | 300 | 400
   division: 'A' | 'B' | 'C' | 'D'
   fingerprint_id: number | null
+  has_face_data?: boolean
 }
 
 export interface Course {

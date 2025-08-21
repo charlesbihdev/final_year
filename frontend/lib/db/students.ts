@@ -4,10 +4,24 @@ import type { Student } from "./types";
 export const studentsDb = {
   async getStudent(id: number) {
     const result = await client.execute({
-      sql: "SELECT * FROM Students WHERE id = ?",
+      sql: `
+        SELECT 
+          s.*,
+          CASE WHEN fd.id IS NOT NULL THEN 1 ELSE 0 END as has_face_data
+        FROM Students s
+        LEFT JOIN FaceData fd ON s.id = fd.student_id
+        WHERE s.id = ?
+      `,
       args: [id],
     });
-    return castRow<Student>(result.rows[0]);
+    
+    const row = result.rows[0];
+    if (!row) return undefined;
+    
+    return {
+      ...castRow<Student>(row),
+      has_face_data: Boolean(row.has_face_data),
+    };
   },
 
   async getStudentByIndexNumber(indexNumber: string) {
@@ -21,15 +35,22 @@ export const studentsDb = {
   async getStudentsByCourse(courseId: number) {
     const result = await client.execute({
       sql: `
-        SELECT s.* 
+        SELECT 
+          s.*,
+          CASE WHEN fd.id IS NOT NULL THEN 1 ELSE 0 END as has_face_data
         FROM Students s 
         JOIN StudentCourses sc ON s.id = sc.student_id
+        LEFT JOIN FaceData fd ON s.id = fd.student_id
         WHERE sc.course_id = ?
         ORDER BY s.index_number
       `,
       args: [courseId],
     });
-    return castRows<Student>(result.rows);
+    
+    return result.rows.map(row => ({
+      ...castRow<Student>(row),
+      has_face_data: Boolean(row.has_face_data),
+    }));
   },
 
   async createStudent(data: Omit<Student, "id">) {
@@ -78,9 +99,20 @@ export const studentsDb = {
 
   async getAllStudents() {
     const result = await client.execute({
-      sql: `SELECT * FROM Students ORDER BY index_number`,
+      sql: `
+        SELECT 
+          s.*,
+          CASE WHEN fd.id IS NOT NULL THEN 1 ELSE 0 END as has_face_data
+        FROM Students s
+        LEFT JOIN FaceData fd ON s.id = fd.student_id
+        ORDER BY s.index_number
+      `,
     });
-    return castRows<Student>(result.rows);
+    
+    return result.rows.map(row => ({
+      ...castRow<Student>(row),
+      has_face_data: Boolean(row.has_face_data),
+    }));
   },
 
   async deleteStudent(id: number) {

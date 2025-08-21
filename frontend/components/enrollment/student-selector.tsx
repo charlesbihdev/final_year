@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { User } from 'lucide-react'
 import type { Student } from "@/types"
 
@@ -22,18 +21,18 @@ export function StudentSelector({ students, selectedStudentId, onStudentChange }
         <CardDescription>Choose a student to manage their course enrollments</CardDescription>
       </CardHeader>
       <CardContent>
-        <Select value={selectedStudentId} onValueChange={onStudentChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose a student" />
-          </SelectTrigger>
-          <SelectContent>
-            {students.map((student) => (
-              <SelectItem key={student.id} value={student.id.toString()}>
-                {student.index_number} - {student.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select 
+          value={selectedStudentId} 
+          onChange={(e) => onStudentChange(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Choose a student</option>
+          {students.map((student) => (
+            <option key={student.id} value={student.id.toString()}>
+              {student.index_number} - {student.name}
+            </option>
+          ))}
+        </select>
       </CardContent>
     </Card>
   )
