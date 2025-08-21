@@ -59,6 +59,17 @@ export function StudentList({ students, isLoading, onEdit, onDelete, onCaptureFa
           <Badge variant="outline" className="text-gray-500">Not enrolled</Badge>
         )
       )
+    },
+    {
+      key: 'has_face_data',
+      label: 'Face Data',
+      render: (student: Student) => (
+        student.has_face_data ? (
+          <Badge variant="secondary">Enrolled</Badge>
+        ) : (
+          <Badge variant="outline" className="text-gray-500">Not enrolled</Badge>
+        )
+      )
     }
   ]
 
