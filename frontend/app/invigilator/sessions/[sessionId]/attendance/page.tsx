@@ -93,48 +93,53 @@ function AttendancePageContent() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link href="/invigilator">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {session.course?.title} - Attendance
-            </h1>
-            <p className="text-gray-600">
-              {format(new Date(session.date), "PPP")} • {session.start_time} - {session.end_time}
-            </p>
-            {/* Display divisions and rooms */}
-            {session.divisions && session.divisions.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {session.divisions.map((division) => (
-                  <Badge key={division.id} variant="outline" className="text-xs">
-                    Division {division.division}
-                    {division.room_number && (
-                      <span className="ml-1">• Room {division.room_number}</span>
-                    )}
-                  </Badge>
-                ))}
-              </div>
-            )}
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          <div className="flex items-center gap-4">
+            <Link href="/invigilator">
+              <Button variant="outline" size="icon">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </Link>
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                {session.course?.title} - Attendance
+              </h1>
+              <p className="text-gray-600">
+                {format(new Date(session.date), "PPP")} • {session.start_time} - {session.end_time}
+              </p>
+              {/* Display divisions and rooms */}
+              {session.divisions && session.divisions.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {session.divisions.map((division) => (
+                    <Badge key={division.id} variant="outline" className="text-xs">
+                      Division {division.division}
+                      {division.room_number && (
+                        <span className="ml-1">• Room {division.room_number}</span>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:flex-shrink-0">
             <Badge variant={session.is_active ? "default" : "secondary"}>
               {session.is_active ? "Active" : "Inactive"}
             </Badge>
             <Button
               variant={session.is_active ? "destructive" : "default"}
+              size="sm"
               onClick={handleToggleSession}
               disabled={isLoading}
               className="gap-2"
             >
               {session.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {session.is_active ? "Stop Session" : "Start Session"}
+              <span className="hidden sm:inline">
+                {session.is_active ? "Stop Session" : "Start Session"}
+              </span>
             </Button>
           </div>
-            </div>
+        </div>
 
         {/* Status Alert */}
             {submitResult && (
@@ -153,17 +158,20 @@ function AttendancePageContent() {
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview" className="gap-2">
-              <Users className="w-4 h-4" />
-              Overview
+            <TabsTrigger value="overview" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Overview</span>
+              <span className="sm:hidden">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="face-recognition" className="gap-2">
-              <Camera className="w-4 h-4" />
-              Face Recognition
+            <TabsTrigger value="face-recognition" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Face Recognition</span>
+              <span className="sm:hidden">Face</span>
             </TabsTrigger>
-            <TabsTrigger value="manual" className="gap-2">
-              <UserCheck className="w-4 h-4" />
-              Manual Entry
+            <TabsTrigger value="manual" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <UserCheck className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Manual Entry</span>
+              <span className="sm:hidden">Manual</span>
             </TabsTrigger>
           </TabsList>
 

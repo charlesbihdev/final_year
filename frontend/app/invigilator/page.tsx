@@ -211,9 +211,9 @@ export default function InvigilatorDashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               Invigilator Dashboard
             </h1>
             <p className="text-gray-600">
@@ -223,15 +223,17 @@ export default function InvigilatorDashboardPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
+              size="sm"
               className="gap-2"
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
             <Button
               variant="outline"
+              size="sm"
               className="gap-2"
               onClick={() => {
                 logout();
@@ -239,7 +241,7 @@ export default function InvigilatorDashboardPage() {
               }}
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         </div>

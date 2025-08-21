@@ -38,91 +38,85 @@ async function seedDatabase() {
 
   console.log("Creating admin user...");
   const admin = await createUser(
-    "Admin User",
-    "admin@example.com",
+    "Super Admin",
+    "admin@st.umat.edu.gh",
     "password123",
     "admin"
   );
 
   console.log("Creating invigilator users...");
   const invigilator1User = await createUser(
-    "Dr. John Doe",
-    "john.doe@university.edu",
+    "Dr. Kofi Adu",
+    "kofi@st.umat.edu.gh",
     "password123",
     "invigilator"
   );
   const invigilator2User = await createUser(
-    "Dr. Jane Smith",
-    "jane.smith@university.edu", 
+    "Dr. Yaw Addae",
+    "yaw@st.umat.edu.gh", 
     "password123",
     "invigilator"
   );
-  const invigilator3User = await createUser(
-    "Prof. Michael Johnson",
-    "michael.johnson@university.edu",
-    "password123", 
-    "invigilator"
-  );
+ 
 
   // Create invigilators (only need user_id and department)
   const inv1 = await createInvigilator(invigilator1User, "Computer Science");
   const inv2 = await createInvigilator(invigilator2User, "Mathematics");
-  const inv3 = await createInvigilator(invigilator3User, "Computer Science");
 
   console.log("Creating students...");
   // Create students with realistic data across multiple divisions
-  const students = [
-    { name: "Alice Johnson", email: "alice.johnson@student.university.edu", index: "FOE.41.008.209.33", dept: "Computer Science", level: 300, division: "A" },
-    { name: "Bob Wilson", email: "bob.wilson@student.university.edu", index: "FOE.41.008.210.33", dept: "Computer Science", level: 300, division: "A" },
-    { name: "Carol Davis", email: "carol.davis@student.university.edu", index: "FOE.41.008.211.33", dept: "Computer Science", level: 300, division: "B" },
-    { name: "David Brown", email: "david.brown@student.university.edu", index: "FOE.41.008.212.33", dept: "Computer Science", level: 300, division: "B" },
-    { name: "Eve Miller", email: "eve.miller@student.university.edu", index: "FOE.41.008.213.33", dept: "Computer Science", level: 300, division: "C" },
-    { name: "Frank Garcia", email: "frank.garcia@student.university.edu", index: "FOE.41.008.214.33", dept: "Computer Science", level: 300, division: "C" },
-    { name: "Grace Lee", email: "grace.lee@student.university.edu", index: "MATH.42.001.101.33", dept: "Mathematics", level: 200, division: "A" },
-    { name: "Henry Chen", email: "henry.chen@student.university.edu", index: "MATH.42.001.102.33", dept: "Mathematics", level: 200, division: "A" },
-    { name: "Isabel Rodriguez", email: "isabel.rodriguez@student.university.edu", index: "MATH.42.001.103.33", dept: "Mathematics", level: 200, division: "B" },
-    { name: "Jack Thompson", email: "jack.thompson@student.university.edu", index: "MATH.42.001.104.33", dept: "Mathematics", level: 200, division: "B" },
-    { name: "Kelly White", email: "kelly.white@student.university.edu", index: "FOE.41.001.001.33", dept: "Computer Science", level: 100, division: "A" },
-    { name: "Louis Anderson", email: "louis.anderson@student.university.edu", index: "FOE.41.001.002.33", dept: "Computer Science", level: 100, division: "A" },
-  ];
+  // const students = [
+  //   { name: "Alice Johnson", email: "alice.johnson@student.university.edu", index: "FOE.41.008.209.33", dept: "Computer Science", level: 300, division: "A" },
+  //   { name: "Bob Wilson", email: "bob.wilson@student.university.edu", index: "FOE.41.008.210.33", dept: "Computer Science", level: 300, division: "A" },
+  //   { name: "Carol Davis", email: "carol.davis@student.university.edu", index: "FOE.41.008.211.33", dept: "Computer Science", level: 300, division: "B" },
+  //   { name: "David Brown", email: "david.brown@student.university.edu", index: "FOE.41.008.212.33", dept: "Computer Science", level: 300, division: "B" },
+  //   { name: "Eve Miller", email: "eve.miller@student.university.edu", index: "FOE.41.008.213.33", dept: "Computer Science", level: 300, division: "C" },
+  //   { name: "Frank Garcia", email: "frank.garcia@student.university.edu", index: "FOE.41.008.214.33", dept: "Computer Science", level: 300, division: "C" },
+  //   { name: "Grace Lee", email: "grace.lee@student.university.edu", index: "MATH.42.001.101.33", dept: "Mathematics", level: 200, division: "A" },
+  //   { name: "Henry Chen", email: "henry.chen@student.university.edu", index: "MATH.42.001.102.33", dept: "Mathematics", level: 200, division: "A" },
+  //   { name: "Isabel Rodriguez", email: "isabel.rodriguez@student.university.edu", index: "MATH.42.001.103.33", dept: "Mathematics", level: 200, division: "B" },
+  //   { name: "Jack Thompson", email: "jack.thompson@student.university.edu", index: "MATH.42.001.104.33", dept: "Mathematics", level: 200, division: "B" },
+  //   { name: "Kelly White", email: "kelly.white@student.university.edu", index: "FOE.41.001.001.33", dept: "Computer Science", level: 100, division: "A" },
+  //   { name: "Louis Anderson", email: "louis.anderson@student.university.edu", index: "FOE.41.001.002.33", dept: "Computer Science", level: 100, division: "A" },
+  // ];
 
-  const studentIds = [];
-  for (const student of students) {
-    const studentId = await createStudent(
-      student.name,
-      student.email,
-      student.index,
-      student.dept,
-      student.level,
-      student.division
-    );
-    studentIds.push(studentId);
-  }
+  // const studentIds = [];
+  // for (const student of students) {
+  //   const studentId = await createStudent(
+  //     student.name,
+  //     student.email,
+  //     student.index,
+  //     student.dept,
+  //     student.level,
+  //     student.division
+  //   );
+  //   studentIds.push(studentId);
+  // }
 
   console.log("Creating courses...");
   const course1 = await createCourse(
     "Introduction to Programming",
-    "CSC101",
+    "CE150",
     100,
     "Computer Science"
   );
   const course2 = await createCourse(
-    "Calculus I", 
-    "MTH201",
+    "Compiler Design", 
+    "CE262",
     200,
-    "Mathematics"
+    "Computer Science"
   );
   const course3 = await createCourse(
     "Data Structures and Algorithms",
-    "CSC301",
+    "CE351",
     300,
     "Computer Science"
   );
   const course4 = await createCourse(
-    "Linear Algebra",
-    "MTH301",
-    300,
-    "Mathematics"
+    "Computer Architecture",
+    "CE451",
+    400,
+    "Computer Science"
   );
 
   console.log("Creating student enrollments...");
@@ -151,70 +145,70 @@ async function seedDatabase() {
     { studentIndex: 7, courseId: course4 }, // Henry in Linear Algebra
   ];
 
-  for (const enrollment of enrollments) {
-    await enrollStudent(studentIds[enrollment.studentIndex], enrollment.courseId);
-  }
+  // for (const enrollment of enrollments) {
+  //   await enrollStudent(studentIds[enrollment.studentIndex], enrollment.courseId);
+  // }
 
   console.log("Creating exam sessions...");
   // Create exam sessions with realistic future dates
-  const session1 = await createExamSession(
-    course1,
-    "2025-02-15",
-    "09:00",
-    "11:00",
-    true
-  );
-  const session2 = await createExamSession(
-    course2,
-    "2025-02-16", 
-    "14:00",
-    "16:00",
-    true
-  );
-  const session3 = await createExamSession(
-    course3,
-    "2025-02-17",
-    "10:00",
-    "12:00",
-    false
-  );
-  const session4 = await createExamSession(
-    course4,
-    "2025-02-18",
-    "08:00",
-    "10:00",
-    false
-  );
+  // const session1 = await createExamSession(
+  //   course1,
+  //   "2025-02-15",
+  //   "09:00",
+  //   "11:00",
+  //   true
+  // );
+  // const session2 = await createExamSession(
+  //   course2,
+  //   "2025-02-16", 
+  //   "14:00",
+  //   "16:00",
+  //   true
+  // );
+  // const session3 = await createExamSession(
+  //   course3,
+  //   "2025-02-17",
+  //   "10:00",
+  //   "12:00",
+  //   false
+  // );
+  // const session4 = await createExamSession(
+  //   course4,
+  //   "2025-02-18",
+  //   "08:00",
+  //   "10:00",
+  //   false
+  // );
 
   console.log("Creating session divisions...");
   // Create session divisions based on enrolled students
   const sessionDivisions = [
     // Session 1 (CSC101) - only A division students enrolled
-    { sessionId: session1, division: "A", roomNumber: "LAB-A", maxCapacity: 30 },
+    // { sessionId: session1, division: "A", roomNumber: "LAB-A", maxCapacity: 30 },
     
     // Session 2 (MTH201) - A and B division students enrolled  
-    { sessionId: session2, division: "A", roomNumber: "HALL-101", maxCapacity: 50 },
-    { sessionId: session2, division: "B", roomNumber: "HALL-102", maxCapacity: 50 },
+    // { sessionId: session2, division: "A", roomNumber: "HALL-101", maxCapacity: 50 },
+    // { sessionId: session2, division: "B", roomNumber: "HALL-102", maxCapacity: 50 },
     
     // Session 3 (CSC301) - A, B, C division students enrolled
-    { sessionId: session3, division: "A", roomNumber: "LAB-B", maxCapacity: 25 },
-    { sessionId: session3, division: "B", roomNumber: "LAB-C", maxCapacity: 25 },
-    { sessionId: session3, division: "C", roomNumber: "LAB-D", maxCapacity: 25 },
+    // { sessionId: session3, division: "A", roomNumber: "LAB-B", maxCapacity: 25 },
+    // { sessionId: session3, division: "B", roomNumber: "LAB-C", maxCapacity: 25 },
+    // { sessionId: session3, division: "C", roomNumber: "LAB-D", maxCapacity: 25 },
     
     // Session 4 (MTH301) - A division students enrolled
-    { sessionId: session4, division: "A", roomNumber: "HALL-201", maxCapacity: 40 },
+    // { sessionId: session4, division: "A", roomNumber: "HALL-201", maxCapacity: 40 },
   ];
 
-  const divisionIds = [];
-  for (const division of sessionDivisions) {
-    const divisionId = await createSessionDivision(
-      division.sessionId,
-      division.division,
-      division.roomNumber,
-      division.maxCapacity
-    );
-    divisionIds.push(divisionId);
-  }
+  // const divisionIds = [];
+  // for (const division of sessionDivisions) {
+  //   const divisionId = await createSessionDivision(
+  //     division.sessionId,
+  //     division.division,
+  //     division.roomNumber,
+  //     division.maxCapacity
+  //   );
+  //   divisionIds.push(divisionId);
+  // }
 
   console.log("Assigning invigilators to session divisions...");
   // Assign invigilators to specific session divisions
@@ -227,20 +221,20 @@ async function seedDatabase() {
     { divisionIndex: 2, invigilatorId: inv2 }, // MTH201-B → Dr. Jane (Math)
     
     // Session 3 divisions
-    { divisionIndex: 3, invigilatorId: inv1 }, // CSC301-A → Dr. John (CS)
-    { divisionIndex: 4, invigilatorId: inv3 }, // CSC301-B → Prof. Michael (CS)
+    // { divisionIndex: 3, invigilatorId: inv1 }, // CSC301-A → Dr. John (CS)
+    // { divisionIndex: 4, invigilatorId: inv3 }, // CSC301-B → Prof. Michael (CS)
     { divisionIndex: 5, invigilatorId: inv1 }, // CSC301-C → Dr. John (CS)
     
     // Session 4 divisions
     { divisionIndex: 6, invigilatorId: inv2 }, // MTH301-A → Dr. Jane (Math)
   ];
 
-  for (const assignment of assignments) {
-    await assignInvigilatorToSessionDivision(divisionIds[assignment.divisionIndex], assignment.invigilatorId);
-  }
+  // for (const assignment of assignments) {
+  //   await assignInvigilatorToSessionDivision(divisionIds[assignment.divisionIndex], assignment.invigilatorId);
+  // }
 
   console.log("Database seeded successfully!");
-  console.log(`Created ${studentIds.length} students, 4 courses, 4 sessions, ${divisionIds.length} divisions`);
+  // console.log(`Created ${studentIds.length} students, 4 courses, 4 sessions, ${divisionIds.length} divisions`);
 }
 
 async function createUser(

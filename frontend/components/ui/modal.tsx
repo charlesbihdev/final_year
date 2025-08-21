@@ -26,7 +26,10 @@ export function Modal({ isOpen, onClose, title, description, children, size = 'm
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
-      <Card className={`relative w-full mx-4 ${sizeClasses[size]} max-h-[80vh] overflow-y-auto`}>
+      <Card 
+        className={`relative w-full mx-4 ${sizeClasses[size]} max-h-[80vh] overflow-y-auto z-[60]`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle>{title}</CardTitle>

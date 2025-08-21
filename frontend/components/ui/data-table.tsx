@@ -86,47 +86,46 @@ export function DataTable<T extends Record<string, any>>({
       )}
 
       <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.map((column, index) => (
-                <TableHead key={index}>{column.label}</TableHead>
-              ))}
-              {actions && <TableHead>Actions</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.length === 0 ? (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={columns.length + (actions ? 1 : 0)} className="text-center py-8 text-gray-500">
-                  {emptyMessage}
-                </TableCell>
+                {columns.map((column, index) => (
+                  <TableHead key={index} className="whitespace-nowrap">{column.label}</TableHead>
+                ))}
+                {actions && <TableHead className="whitespace-nowrap">Actions</TableHead>}
               </TableRow>
-            ) : (
-              paginatedData.map((item, index) => (
-                <TableRow
-                  key={index}
-                  className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
-                  onClick={() => onRowClick?.(item)}
-                >
-                  {columns.map((column, colIndex) => (
-                    <TableCell key={colIndex}>
-                      {column.render 
-                        ? column.render(item)
-                        : String(getValue(item, column.key as string) || '-')
-                      }
-                    </TableCell>
-                  ))}
-                  {actions && (
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      {actions(item)}
-                    </TableCell>
-                  )}
+            </TableHeader>
+            <TableBody>
+              {paginatedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length + (actions ? 1 : 0)} className="text-center py-8">
+                    <div className="text-gray-500">{emptyMessage}</div>
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                paginatedData.map((item, rowIndex) => (
+                  <TableRow 
+                    key={rowIndex}
+                    onClick={() => onRowClick?.(item)}
+                    className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+                  >
+                    {columns.map((column, colIndex) => (
+                      <TableCell key={colIndex} className="whitespace-nowrap">
+                        {column.render ? column.render(item) : getValue(item, column.key as string)}
+                      </TableCell>
+                    ))}
+                    {actions && (
+                      <TableCell className="whitespace-nowrap">
+                        {actions(item)}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {totalPages > 1 && (
@@ -142,16 +141,28 @@ export function DataTable<T extends Record<string, any>>({
               disabled={currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Previous</span>
             </Button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className="w-8 h-8 p-0"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
