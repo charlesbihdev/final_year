@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
@@ -82,64 +81,52 @@ export function AttendanceFilters({
           {/* Session Filter */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Session</label>
-                      <Select
-            value={filters.sessionId || "all"}
-            onValueChange={(value) => updateFilter("sessionId", value === "all" ? "" : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All sessions" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All sessions</SelectItem>
+            <select
+              value={filters.sessionId || "all"}
+              onChange={(e) => updateFilter("sessionId", e.target.value === "all" ? "" : e.target.value)}
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="all">All sessions</option>
               {sessions.map((session) => (
-                <SelectItem key={session.id} value={session.id.toString()}>
+                <option key={session.id} value={session.id.toString()}>
                   {session.course?.title} - {session.date}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </select>
           </div>
 
           {/* Student Filter */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Student</label>
-                      <Select
-            value={filters.studentId || "all"}
-            onValueChange={(value) => updateFilter("studentId", value === "all" ? "" : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All students" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All students</SelectItem>
+            <select
+              value={filters.studentId || "all"}
+              onChange={(e) => updateFilter("studentId", e.target.value === "all" ? "" : e.target.value)}
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="all">All students</option>
               {students.map((student) => (
-                <SelectItem key={student.id} value={student.id.toString()}>
+                <option key={student.id} value={student.id.toString()}>
                   {student.user?.name} ({student.student_id})
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </select>
           </div>
 
           {/* Course Filter */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Course</label>
-                      <Select
-            value={filters.courseId || "all"}
-            onValueChange={(value) => updateFilter("courseId", value === "all" ? "" : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All courses</SelectItem>
+            <select
+              value={filters.courseId || "all"}
+              onChange={(e) => updateFilter("courseId", e.target.value === "all" ? "" : e.target.value)}
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="all">All courses</option>
               {courses.map((course) => (
-                <SelectItem key={course.id} value={course.id.toString()}>
+                <option key={course.id} value={course.id.toString()}>
                   {course.code} - {course.title}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </select>
           </div>
 
           {/* Date Range Filter */}
