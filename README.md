@@ -119,20 +119,27 @@ npm run dev                      # serves on http://localhost:3000
 The frontend is deployed on Vercel; the FastAPI service is run locally against
 the shared database.
 
-## Limitations and future work
+## Scope and future work
 
-- The system has not been formally evaluated. No accuracy, false-match, or
-  timing figures are reported here because none were measured.
-- Face verification uses a fixed cosine-similarity threshold (0.6) and a single
-  averaged embedding per student; both would benefit from tuning and from
-  per-student calibration on real enrollment data.
-- The embedding model (VGGFace2) is used as-is, without fine-tuning on the
-  target population or capture conditions.
-- No liveness or anti-spoofing check exists, so a photo of a photo could pass
-  the face path; this would need addressing before production use.
-- The FastAPI face service is run locally rather than hosted, and the two
-  services duplicate some data-access logic; consolidating them would simplify
-  deployment.
+This is a working prototype that demonstrates the end-to-end pipeline; several
+directions are deliberately left open for the research phase.
+
+- **Evaluation.** The prototype was validated functionally rather than
+  benchmarked. The natural next step is a systematic evaluation on a dataset
+  collected under the target conditions (lecture-hall lighting, phone cameras),
+  reporting accuracy and false-match rates against the design constraints.
+- **Threshold and calibration.** Verification uses a global cosine-similarity
+  threshold (0.6) and one averaged embedding per student. A field dataset would
+  support per-student calibration and a threshold tuned to the operating point.
+- **Model adaptation.** The embeddings come from InceptionResnetV1 pretrained
+  on VGGFace2; fine-tuning on the target population is a promising way to
+  improve robustness beyond what preprocessing alone achieves.
+- **Liveness detection.** Anti-spoofing (e.g. detecting a photo held to the
+  camera) is a clear extension for a production deployment and a worthwhile
+  research sub-problem in its own right.
+- **Deployment.** The two services share one database but the FastAPI face
+  service currently runs locally; hosting it and consolidating the shared
+  data-access logic would streamline deployment.
 
 ## My role
 
